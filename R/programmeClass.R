@@ -1,4 +1,5 @@
 # Define the S4 class for the RSV intervention programme
+#' @export
 setClass(
     "RSVProgramme",
     representation(
@@ -58,6 +59,7 @@ setClass(
 #' @param run_burn Burn-in for the model (in days)
 #' @param run_full Number of days to run the model for post burn-in
 #' @return A classRunInterventions which is fully parameterised
+#' @export
 make_RunInterventions <- function(RunInterventions, uk_data_sum, run_burn, run_full) {
     classRunInterventions <- new(RunInterventions, uk_data_sum$numberDailyLiveBirths, uk_data_sum$population, uk_data_sum$ageGroupBoundary) # Calls class
     classRunInterventions$p_mat <- uk_data_sum$prop_mat
@@ -92,7 +94,7 @@ make_RunInterventions <- function(RunInterventions, uk_data_sum, run_burn, run_f
 #'
 #' @param S an integer taking the number of Monte Carlo samples to run over
 #' @return A RSVProgramme object
-#' 
+#' @export
 make_rsv_programme <- function(S = 10) {
      # Uploads empty RunInterventions class
     Rcpp::sourceCpp(here::here("src", "RunInterventions.cpp"))
@@ -116,6 +118,7 @@ make_rsv_programme <- function(S = 10) {
         )
 }
 
+#' @export
 setGeneric("add_economics", function(object, econ_name, econ_raw, risks_raw, risks_vhr_raw) {
   standardGeneric("add_economics")
 })
@@ -127,6 +130,7 @@ setGeneric("add_economics", function(object, econ_name, econ_raw, risks_raw, ris
 #' @param risks_raw a dataframe with the risk of outcomes per age group.
 #' @param risks_vhr_raw a dataframe with the risk of outcomes per age group for very-high-risk infants
 #' @return An RSVProgramme object
+#' @export
 setMethod("add_economics",  signature(object = "RSVProgramme"), 
     function(object, econ_name, econ_raw, risks_raw, risks_vhr_raw) {
 
@@ -145,6 +149,7 @@ setMethod("add_economics",  signature(object = "RSVProgramme"),
     }
 )
 
+#' @export
 setGeneric("add_programme", function(object, prog_name, cal, cal_vhr, immune_profile) {
   standardGeneric("add_programme")
 })
@@ -157,6 +162,7 @@ setGeneric("add_programme", function(object, prog_name, cal, cal_vhr, immune_pro
 #' @param cal_vhr dataframe with the implementation calendar for the very-high-risk population
 #' @param immune_profile a list with information about the immune asumptions if the prophylatic in the programme
 #' @return An RSVProgramme object
+#' @export
 setMethod("add_programme",  signature(object = "RSVProgramme"), 
     function(object, prog_name, cal, cal_vhr, immune_profile) {
 
@@ -203,6 +209,7 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
     }
 )
 
+#' @export
 setGeneric("run", function(object) {
   standardGeneric("run")
 })
@@ -211,6 +218,7 @@ setGeneric("run", function(object) {
 #'
 #' @param object RSVProgramme object
 #' @return An RSVProgramme object
+#' @export
 setMethod("run",  signature(object = "RSVProgramme"),
     function(object) {
 
@@ -243,6 +251,7 @@ setMethod("run",  signature(object = "RSVProgramme"),
     }
 )
 
+#' @export
 setGeneric("run_state", function(object) {
   standardGeneric("run_state")
 })
@@ -251,6 +260,7 @@ setGeneric("run_state", function(object) {
 #'
 #' @param object RSVProgramme object
 #' @return a matrix with all the values of the state variables in the dynamic transmission model
+#' @export
 setMethod("run_state",  signature(object = "RSVProgramme"),
     function(object) {
 

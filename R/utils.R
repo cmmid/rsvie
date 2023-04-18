@@ -3,6 +3,7 @@
 #' @param object an RSVProgramme object
 #' @importFrom tidyr pivot_longer
 #' @return none
+#' @export
 checkout_incidence <- function(object) {
     comparator_get <- load(file = here::here("outputs", object@prog_name, "run_outputs.RData"))
     comparator_ran <- get(comparator_get)
@@ -22,6 +23,7 @@ checkout_incidence <- function(object) {
 #' @param object an RSVProgramme object
 #' @importFrom tidyr pivot_longer
 #' @return none
+#' @export
 checkout_states <- function(object) {
     state_names <- c(rep(c(
         "M", 
@@ -48,7 +50,7 @@ checkout_states <- function(object) {
     df_states
 }
 
-
+#' @export
 compare_interventions <- function(obj_base, obj_inter) {
 
     base_sum <- obj_base@outcomes$outcomes %>% 

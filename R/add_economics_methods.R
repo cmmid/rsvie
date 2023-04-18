@@ -82,6 +82,7 @@ output_samples <- function(econ_raw, risks_raw, file.name) {
 
 }
 
+#' @export
 plot_economics <- function(object) {
     
     if (!dir.exists(here::here("outputs", object@econ_name, "figs"))) {
@@ -133,6 +134,7 @@ plot_economics <- function(object) {
 
 }
 
+#' @export
 plot_economics_fit <- function(object) {
     
     if (!dir.exists(here::here("outputs", object@econ_name, "figs"))) {
@@ -207,6 +209,7 @@ plot_economics_fit <- function(object) {
 
 }
 
+#' @export
 covert_raw_to_risk <- function(object, outcomes_raw, model_cases_sample_mean) {
 
     population <- object@uk_data$population
@@ -258,6 +261,7 @@ covert_raw_to_risk <- function(object, outcomes_raw, model_cases_sample_mean) {
     outcomes_risks_full
 }
 
+#' @export
 plot_risks <- function(outcomes_risks_full) {
     outcomes_risks_full %>% mutate(age_group = factor(age_group, levels = age_groups)) %>% 
         mutate(outcome = factor(outcome, levels = outcomes)) %>% 
