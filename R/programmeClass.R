@@ -97,11 +97,10 @@ make_RunInterventions <- function(RunInterventions, uk_data_sum, run_burn, run_f
 #' @export
 make_rsv_programme <- function(S = 10) {
      # Uploads empty RunInterventions class
-    Rcpp::sourceCpp(here::here("src", "RunInterventions.cpp"))
-    load(file = here::here("data-raw", "uk_data_sum.RData")) 
-    load(file = here::here("data-raw", "posteriors.Rda")) # loa
-    seeds <- read.csv(file = here::here("data-raw", "seed_samples.csv"))[[1]] # loads uk_data_sum
-
+    Rcpp::sourceCpp("../src/RunInterventions.cpp"))
+    load(file = "../data-raw/uk_data_sum.RData")) 
+    load(file = "../data-raw/posteriors.Rda")) 
+    seeds <- read.csv(file = "../data-raw/seed_samples.csv"))[[1]] # loads uk_data_sum
 
 
     model_par <- list(burnin_yrs = 2, run_yrs = 10)
