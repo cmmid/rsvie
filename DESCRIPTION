@@ -1,0 +1,43 @@
+Package: rsvie
+Title: A package for RSV Intervention Evaluations
+Version: 0.0.0.9000
+Authors@R: 
+    person("David", "Hodgson", , "david.hodgson@lshtm.ac.uk", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.2)
+Imports: 
+    here,
+    lubridate,
+    ggplot2,
+    Rcpp,
+    patchwork,
+    RcppEigen,
+    Rcpp,
+    dplyr,
+    forcats,
+    tidyr,
+    pacman,
+    RColorBrewer,
+    EnvStats,
+    BH,
+    magrittr
+Suggests:
+    gifski,
+    learnr,
+    usethis,
+    roxygen2,
+    devtools,
+    magrittr,
+    testthat (>= 3.0.0)
+LinkingTo:
+    Rcpp,
+    RcppEigen,
+    BH
+Config/testthat/edition: 3

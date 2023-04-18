@@ -1,0 +1,98 @@
+# Markdown explaining how to use the RSVimpact package
+
+```{r}
+
+# initialize the class
+devtools::load_all()
+RSVempty <- make_rsv_programme(S = 1)
+
+# Load the relevant csv files` 
+econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
+risks_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks.csv"))
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
+
+RSVempty <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw, risks_raw, risks_vhr_raw)
+plot_economics(RSVempty)
+plot_economics_fit(RSVempty)
+
+```
+
+
+# SANITY CHECK ON BASELINE DYNAMICS
+```{r}
+
+# Load a calendar with no intervention 
+cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
+
+immune_profile_none <- list(
+    mass = list(product = "none"),
+    
+    vhr = list(
+        product = "none"),
+    direct = FALSE
+)
+
+RSV_none <- add_programme(RSVempty, prog_name = "none", cal_none, cal_none, immune_profile_none)
+RSV_none <- run(RSV_none)
+
+```
+
+
+##
+
+```{r}
+
+none_test <- run_state(RSV_none)
+save(none_test,  file = here::here("inst", "extdata", "tests", "state_none_180423.RData") )
+
+######### THINGS TO CHECK OUT ARE SANE ###########
+# 1. Population sizes
+# 1.1. Summary metrics in the model
+df_states %>% filter(state_name %in% c("sum18", "sum19", "sum20", "sum21", "sum22", "sum23" )) %>% 
+    filter(incidence > 0) %>%
+    ggplot() + geom_line(aes(t, incidence, color = state_name)) + 
+    facet_wrap(vars(age_group))
+# TICK
+
+# 1.2. dynamics allocation in the groupsRSV_mab_s_65_states %>% filter(risk_group == "VHR", social_group == "n",state_name == "V3_lav") %>% 
+
+df_states %>% filter(risk_group == "LR", social_group == "n", state_name %in% c("I0", "I1", "I2", "I3")) %>%
+    group_by(t, age_group) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 12) %>%
+    ggplot() + geom_line(aes(t, tot_age, color = as.character(age_group)))
+# TICK
+
+
+# 2. Some arbitrary stuff
+df_states_pos <- df_states %>% filter(incidence > 0)
+temp_data <- df_states_pos %>% filter(risk_group == "LR", social_group == "n", age_group == 1)
+
+temp_data %>% 
+    ggplot() + geom_line(aes(t, incidence, color = state_name)) + 
+    facet_grid(vars(model_type))
+
+
+# 3. Incidence 
+inci_df <- checkout_incidence(RSV_none)
+
+# 3.1 Make sure incidence waves are sensible
+inci_df %>% filter(incidence > 0) %>%
+    ggplot() + 
+        geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
+        facet_grid(vars(risk_group, social_group)) + theme_bw()
+
+inci_df %>% filter(incidence > 0) %>% group_by(age_group, t, risk_group) %>% 
+    summarise(incidence = sum(incidence)) %>% filter(age_group < 12) %>%
+    ggplot() + 
+        geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
+        facet_grid(vars(risk_group)) + theme_bw()
+
+
+
+```
+
+
+```{r}
+
+
+
+````

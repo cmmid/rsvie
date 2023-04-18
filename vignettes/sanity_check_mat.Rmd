@@ -1,0 +1,188 @@
+# Markdown explaining how to use the RSVimpact package
+
+# Load the packages
+```{r}
+
+devtools::load_all()
+RSVempty <- make_rsv_programme()
+
+# Load the relevant csv files`
+econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
+risks_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks.csv"))
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
+
+# Add the economic information to the class
+RSVempty <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw, risks_raw, risks_vhr_raw)
+plot_economics(RSVempty)
+plot_economics_fit(RSVempty)
+
+```
+
+
+# SANITY CHECK ON BASELINE DYNAMICS
+```{r}
+
+cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
+cal_mat_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_s.csv")) 
+cal_mat_yr <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_yr.csv")) 
+
+
+efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_post_wane.RData")) 
+efficacy <- get(efficacy_t)
+
+efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_post_wane.RData")) 
+efficacy_mat <- get(efficacy_t)
+
+immune_profile_mat <- list(
+    mass = list(
+        product = "mat",
+        wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a), b = abs(efficacy$wane_b),
+        sero_delay = "flu_like",
+        gest_age_devilery_wks = "26 34",
+        wane_function_neonate = "a * exp(b * t))", a_mat = abs(efficacy_mat$wane_a), b_mat = abs(efficacy_mat$wane_b)
+    ),
+    vhr = list(
+        product = "pal",
+        wane_function = "a * exp(b * t))", a = 0.7, b = 1 / 60,
+        sero_delay = "none"
+    ),
+    direct = FALSE
+)
+
+RSV_mat_s <- add_programme(RSVempty, prog_name = "mat_s", cal_mat_s, cal_vhr_s, immune_profile_mat)
+RSV_mat_yr <- add_programme(RSVempty, prog_name = "mat_yr", cal_mat_yr, cal_vhr_s, immune_profile_mat)
+
+RSV_mat_s <- run(RSV_mat_s)
+RSV_mat_yr <- run(RSV_mat_yr)
+
+plot_calendar(RSV_mat_s)
+plot_calendar(RSV_mat_yr)
+
+```
+
+## Check out the PALIVIZUMAB PROGRAMME FIRST
+
+```{r}
+
+RSV_mat_s_states <- checkout_states(RSV_mat_s)
+RSV_mat_yr_states <- checkout_states(RSV_mat_yr)
+
+RSV_mat_s_states %>% filter(state_name %in% c("sum18", "sum19", "sum20", "sum21", "sum22", "sum23" )) %>% 
+    ggplot() + geom_line(aes(t, incidence, color = state_name)) + 
+    facet_wrap(vars(age_group))
+
+RSV_mat_s_states %>% filter(risk_group == "LR", social_group == "c", model_type == "inter") %>%
+    group_by(t, age_group) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 25, tot_age > 0) %>%
+    ggplot() + geom_line(aes(t, tot_age, color = as.character(age_group)))
+
+######### THINGS TO CHECK OUT ARE SANE IN STATES ###########
+# Compare dynamics between both implementations
+# Check dynamics of the VHR
+# 1.2. dynamics allocation in the groups
+## VHR has big difference sin incidence
+## LR is not perturbed
+
+# VHR dynamics seem correct
+
+RSV_mat_s_states %>% filter(risk_group == "VHR", social_group == "c", state_name == "I0") %>% 
+        filter(age_group <= 12) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+ 
+RSV_mat_s_states %>% filter(risk_group == "VHR", social_group == "n", state_name == "V0_mab") %>% 
+        filter(age_group <= 12) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+# Look at LR dynamics in under 12 for Vmat
+
+RSV_mat_s_states %>% filter(risk_group == "LR", social_group == "c", state_name == "V_mat") %>% 
+        filter(age_group <= 13) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+RSV_mat_yr_states %>% filter(risk_group == "LR", social_group == "n",state_name == "V_mat") %>% 
+        filter(age_group <= 13) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+
+RSV_mat_s_states %>% filter(risk_group == "LR", social_group == "c", state_name == "V3_lav") %>% 
+        filter(age_group >= 13) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+
+RSV_mat_yr_states %>% filter(risk_group == "LR", social_group == "c", state_name == "V3_lav") %>% 
+        filter(age_group >= 13) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+
+RSV_mat_s_states %>% filter(risk_group == "LR", social_group == "c", state_name == "V3_lav") %>% 
+        filter(age_group >= 13) %>%
+        ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
+
+
+
+
+######### THINGS TO CHECK OUT ARE SANE IN INCIDENCE ###########
+# 3. Incidence 
+inci_df_mat_s <- checkout_incidence(RSV_mat_s)
+inci_df_mat_yr <- checkout_incidence(RSV_mat_yr)
+
+# 3.1 Make sure incidence waves are sensible
+inci_df_mat_s %>% filter(incidence > 0) %>%
+    ggplot() + 
+        geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
+        facet_grid(vars(risk_group, social_group), scales = "free_y") + theme_bw()
+
+inci_df_mat_yr %>% filter(incidence > 0) %>%
+    ggplot() + 
+        geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
+        facet_grid(vars(risk_group, social_group), scales = "free_y") + theme_bw()
+
+```
+
+
+```{r}
+
+RSV_none <- run(RSV_none)
+RSV_mat_s <- run(RSV_mat_s)
+RSV_mat_yr <- run(RSV_mat_yr)
+
+obj_base <- RSV_none
+obj_inter <- list(RSV_mat_s, RSV_mat_yr)
+
+compare_mat <- compare_interventions(obj_base, obj_inter)
+
+library(ggdist)
+
+
+p1 <- compare_mat %>% filter(age_group <= 12) %>%
+    ggplot() + 
+        stat_pointinterval(aes(age_group, cases, color = type)) + 
+        facet_wrap(vars(outcome), scales = "free_y") + 
+        theme_bw()
+
+p2 <- compare_mat %>% filter(age_group <= 12) %>%
+    ggplot() + 
+        stat_pointinterval(aes(age_group, cases_VHR, color = type)) + 
+        facet_wrap(vars(outcome), scales = "free_y") + 
+        theme_bw()
+p1 / p2
+
+
+p1 <- compare_mat %>% filter(age_group >= 13) %>%
+    ggplot() + 
+        stat_pointinterval(aes(age_group, cases, color = type)) + 
+        facet_wrap(vars(outcome), scales = "free_y") + 
+        theme_bw()
+
+p2 <- compare_mat %>% filter(age_group >= 13) %>%
+    ggplot() + 
+        stat_pointinterval(aes(age_group, cases_VHR, color = type)) + 
+        facet_wrap(vars(outcome), scales = "free_y") + 
+        theme_bw()
+p1 / p2
+
+
+
+
+
+
+```

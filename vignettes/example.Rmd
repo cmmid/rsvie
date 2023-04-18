@@ -1,0 +1,31 @@
+# Markdown explaining how to use the RSVimpact package
+
+# Load the packages
+```{r}
+# initialize the class
+devtools::load_all()
+RSVempty <- make_rsv_programme()
+
+# Load the relevant csv files` 
+econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
+
+# The risk per infection can be difficult to to obtin from the literature. However we can aggregate the 
+# risk per infection from the incidence of the outcome and the risk per case. To do this we need to load the
+# incidence of the outcome and the model of the incidence of the outcome (from the fitting)
+outcomes_incidence <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcomes_incidence.csv"))
+model_cases_sample_mean_get <- load(file = system.file(package = "rsvie", "extdata", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
+
+# plot the calcualted risk per RSV infection
+plot_risks(risks_raw)
+
+# Can then add to the add_economics function
+RSVempty <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw, risks_raw, risks_vhr_raw)
+plot_economics(RSVempty)
+plot_economics_fit(RSVempty)
+
+```
