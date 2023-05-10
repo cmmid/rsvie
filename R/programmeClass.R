@@ -90,6 +90,8 @@ make_RunInterventions <- function(RunInterventions, uk_data_sum, run_burn, run_f
  }
 
 
+Rcpp::sourceCpp("./src/RunInterventions.cpp")
+
 #' @title A constructor to make an RSVProgramme object 
 #'
 #' @param S an integer taking the number of Monte Carlo samples to run over
@@ -97,11 +99,15 @@ make_RunInterventions <- function(RunInterventions, uk_data_sum, run_burn, run_f
 #' @export
 make_rsv_programme <- function(S = 10) {
      # Uploads empty RunInterventions class
-    Rcpp::sourceCpp("../src/RunInterventions.cpp"))
-    load(file = "../data-raw/uk_data_sum.RData")) 
-    load(file = "../data-raw/posteriors.Rda")) 
-    seeds <- read.csv(file = "../data-raw/seed_samples.csv"))[[1]] # loads uk_data_sum
+  #  Rcpp::sourceCpp("./src/RunInterventions.cpp")
+    #Rcpp::loadModule("RunInterventionsModule", "rsvie")
 
+    RunInterventionsModule <- Rcpp::Module("RunInterventionsModule", "rsvie")
+    RunInterventions <- RunInterventionsModule$RunInterventions 
+
+    load(file = system.file(package = "rsvie", "extdata", "data-raw", "uk_data_sum.RData"))
+    load(file = system.file(package = "rsvie", "extdata", "data-raw", "posteriors.Rda"))
+    seeds <- read.csv(file = system.file(package = "rsvie", "extdata", "data-raw", "seed_samples.csv"))[[1]] # loads uk_data_sum
 
     model_par <- list(burnin_yrs = 2, run_yrs = 10)
     econ_par <- list(time_horizon = 10, discount_rate = 0.035)
@@ -170,9 +176,9 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
              object@eff_1season <- immune_profile$eff_1season
         }
 
-        if (!dir.exists(here::here("outputs", prog_name))) {
+        if (!dir.exists(here::here("outputs", "extra", prog_name))) {
             # create the folder if it doesn't exist
-            dir.create(here::here("outputs", prog_name))
+            dir.create(here::here("outputs", "extra", prog_name))
         }
 
         # These are all the programmes that are run
@@ -209,7 +215,7 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
 )
 
 #' @export
-setGeneric("run", function(object) {
+setGeneric("run", function(object, direct = FALSE, filename = NULL) {
   standardGeneric("run")
 })
 
@@ -217,16 +223,22 @@ setGeneric("run", function(object) {
 #'
 #' @param object RSVProgramme object
 #' @return An RSVProgramme object
+#' @import furrr
+#' @import future
 #' @export
 setMethod("run",  signature(object = "RSVProgramme"),
-    function(object) {
 
+    function(object, direct = FALSE, filename = NULL) {
+        cat("Running: Iterating through model simulations\n")
+        future::plan(multisession, workers = 16)
         raw_inci <-
             map(seq_len(object@S),
                 function(x) {
-                cat("Sample no: ", x, "\n")
+
+                cat(" Sample no: ", x, "    \r")
                 model_calendar_eff <- get_model_sample(object, object@seeds[x])
                 efficacies_sample <- get_efficacies_sample(object, object@seeds[x])
+                efficacies_sample$direct <- direct
 
                 object@model$Sample(
                     model_calendar_eff,
@@ -238,20 +250,23 @@ setMethod("run",  signature(object = "RSVProgramme"),
                 }
             )
         object@raw_inci <- raw_inci
+        cat("Running: Calculating the outcomes\n")
         object@outcomes <- convert_to_outcomes(object)
 
-        if (!dir.exists(here::here("outputs", object@prog_name))) {
+        if (!dir.exists(here::here("outputs", "extra", object@prog_name))) {
             # create the folder if it doesn't exist
-            dir.create(here::here("outputs", object@prog_name))
+            dir.create(here::here("outputs", "extra", object@prog_name))
         }
-        save(object, file = here::here("outputs", object@prog_name, "run_outputs.RData"))
+        if (!is.null(filename)) {
+            save(object, file = here::here("outputs", "extra", object@prog_name, "run_outputs.RData"))
+        }
         object
 
     }
 )
 
 #' @export
-setGeneric("run_state", function(object) {
+setGeneric("run_state", function(object, S_i = 1, direct = FALSE) {
   standardGeneric("run_state")
 })
 
@@ -261,15 +276,14 @@ setGeneric("run_state", function(object) {
 #' @return a matrix with all the values of the state variables in the dynamic transmission model
 #' @export
 setMethod("run_state",  signature(object = "RSVProgramme"),
-    function(object) {
+    function(object, S_i = 1, direct = FALSE) {
 
         raw_state <-
-            map(seq_len(object@S),
+            map(seq_len(S_i),
                 function(x) {
-                    cat("Sample no: ", x, "\n")
                     model_calendar_eff <- get_model_sample(object, object@seeds[x])
                     efficacies_sample <- get_efficacies_sample(object, object@seeds[x])
-                    
+                    efficacies_sample$direct <- direct
                     object@model$StatesValues(
                         model_calendar_eff,
                         object@dose_calendar,

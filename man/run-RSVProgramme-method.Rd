@@ -4,7 +4,7 @@
 \alias{run,RSVProgramme-method}
 \title{A setMethod for the \code{run} function}
 \usage{
-\S4method{run}{RSVProgramme}(object)
+\S4method{run}{RSVProgramme}(object, direct = FALSE, filename = NULL)
 }
 \arguments{
 \item{object}{RSVProgramme object}

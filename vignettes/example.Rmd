@@ -20,12 +20,52 @@ model_cases_sample_mean <- get(model_cases_sample_mean_get)
 # This function then converts the incidence of the outcome to the risk per infection
 risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
 
-# plot the calcualted risk per RSV infection
-plot_risks(risks_raw)
-
 # Can then add to the add_economics function
 RSVempty <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw, risks_raw, risks_vhr_raw)
 plot_economics(RSVempty)
 plot_economics_fit(RSVempty)
+
+```
+
+
+```{r}
+
+df_eff_disease_mat <- data.frame(
+    product = "mat",
+    infection = 0.513,
+    symptomatic = 0.513,
+    gp = 0.513,
+    hosp = 0.694,
+    a_e = 0.694,
+    icu = 0.694,
+    death = 0.694
+)
+
+# need to check waneing model correct
+df_eff_disease_nmab <- data.frame(
+    product = "mab",
+    infection = 0.795,
+    symptomatic = 0.795,
+    gp = 0.795,
+    hosp = 0.795,
+    a_e = 0.795,
+    icu = 0.795,
+    death = 0.795
+)
+
+# need to check waneing model correct
+df_eff_disease_papi <- data.frame(
+    product = "lav",
+    infection = 0.717,
+    symptomatic = 0.717,
+    gp = 0.717,
+    hosp = 0.826,
+    a_e = 0.826,
+    icu = 0.826,
+    death = 0.826
+)
+
+disease_eff_values <- bind_rows(df_eff_disease_mat, df_eff_disease_nmab, df_eff_disease_papi)
+write_rds(disease_eff_values, here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
 
 ```

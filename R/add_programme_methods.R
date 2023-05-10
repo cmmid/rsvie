@@ -92,9 +92,10 @@ get_daily_uptake <- function(up_week_raw, start_time)
 #' @param object an RSVProgramme object
 #' @import dplyr
 #' @return none
+#' @export
 plot_calendar <- function(object) {
-    if (!dir.exists(here::here("outputs", object@prog_name, "figs"))) {
-        dir.create(here::here("outputs", object@prog_name, "figs"))
+    if (!dir.exists(here::here("outputs", "extra", object@prog_name, "figs"))) {
+        dir.create(here::here("outputs", "extra", object@prog_name, "figs"))
     }
     age_groups <- object@econ_df$age_group %>% unique
     lapply(object@dose_calendar, function(x) colnames(x) <- age_groups)

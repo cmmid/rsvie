@@ -4,7 +4,7 @@
 ```{r}
 
 devtools::load_all()
-RSVempty <- make_rsv_programme()
+RSVempty <- make_rsv_programme(S = 1)
 
 # Load the relevant csv files`
 econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
@@ -39,7 +39,7 @@ immune_profile_mat <- list(
         wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a), b = abs(efficacy$wane_b),
         sero_delay = "flu_like",
         gest_age_devilery_wks = "26 34",
-        wane_function_neonate = "a * exp(b * t))", a_mat = abs(efficacy_mat$wane_a), b_mat = abs(efficacy_mat$wane_b)
+        wane_function_neonate = "a * exp(b * t))", a_mat = abs(efficacy_mat$wane_a), b_mat = mean(abs(efficacy_mat$wane_b))
     ),
     vhr = list(
         product = "pal",
@@ -49,11 +49,14 @@ immune_profile_mat <- list(
     direct = FALSE
 )
 
+immune_profile_mat$mass$a_mat
+
+
 RSV_mat_s <- add_programme(RSVempty, prog_name = "mat_s", cal_mat_s, cal_vhr_s, immune_profile_mat)
 RSV_mat_yr <- add_programme(RSVempty, prog_name = "mat_yr", cal_mat_yr, cal_vhr_s, immune_profile_mat)
 
-RSV_mat_s <- run(RSV_mat_s)
-RSV_mat_yr <- run(RSV_mat_yr)
+RSV_mat_s <- rsvie::run(RSV_mat_s)
+RSV_mat_yr <- rsvie::run(RSV_mat_yr)
 
 plot_calendar(RSV_mat_s)
 plot_calendar(RSV_mat_yr)
@@ -67,7 +70,7 @@ plot_calendar(RSV_mat_yr)
 RSV_mat_s_states <- checkout_states(RSV_mat_s)
 RSV_mat_yr_states <- checkout_states(RSV_mat_yr)
 
-RSV_mat_s_states %>% filter(state_name %in% c("sum18", "sum19", "sum20", "sum21", "sum22", "sum23" )) %>% 
+RSV_mat_yr_states %>% filter(state_name %in% c("sum18", "sum19", "sum20", "sum21", "sum22", "sum23" )) %>% 
     ggplot() + geom_line(aes(t, incidence, color = state_name)) + 
     facet_wrap(vars(age_group))
 
@@ -126,12 +129,12 @@ inci_df_mat_s <- checkout_incidence(RSV_mat_s)
 inci_df_mat_yr <- checkout_incidence(RSV_mat_yr)
 
 # 3.1 Make sure incidence waves are sensible
-inci_df_mat_s %>% filter(incidence > 0) %>%
+inci_df_mat_s %>% filter(incidence > 0) %>% filter(age_group <= 12) %>%
     ggplot() + 
         geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
         facet_grid(vars(risk_group, social_group), scales = "free_y") + theme_bw()
 
-inci_df_mat_yr %>% filter(incidence > 0) %>%
+inci_df_mat_yr %>% filter(incidence > 0) %>% filter(age_group <= 12) %>%
     ggplot() + 
         geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
         facet_grid(vars(risk_group, social_group), scales = "free_y") + theme_bw()
@@ -141,9 +144,9 @@ inci_df_mat_yr %>% filter(incidence > 0) %>%
 
 ```{r}
 
-RSV_none <- run(RSV_none)
-RSV_mat_s <- run(RSV_mat_s)
-RSV_mat_yr <- run(RSV_mat_yr)
+RSV_none <- rsvie::run(RSV_none)
+RSV_mat_s <- rsvie::run(RSV_mat_s)
+RSV_mat_yr <- rsvie::run(RSV_mat_yr)
 
 obj_base <- RSV_none
 obj_inter <- list(RSV_mat_s, RSV_mat_yr)

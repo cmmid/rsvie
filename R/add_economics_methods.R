@@ -130,7 +130,7 @@ plot_economics <- function(object) {
             geom_line(aes(x = age_group, y = mean, color = outcome, group = outcome), size = 2) + 
             labs(x = "Age group", y = "Value") + 
             theme_bw() + facet_grid(vars(outcome), scales = "free_y")
-    ggsave(here::here("outputs", object@econ_name, "figs", "risks_raw_vhr_uncertainty.png"))
+    ggsave(here::here("outputs",  object@econ_name, "figs", "risks_raw_vhr_uncertainty.png"))
 
 }
 
@@ -251,25 +251,12 @@ covert_raw_to_risk <- function(object, outcomes_raw, model_cases_sample_mean) {
         pivot_longer(c(mean:ub_95), names_to = "stat_summary",
             values_to = "value") %>% 
         left_join(rename(model_cases_sample_mean,
-            incidence = value) ) %>%
-        left_join(df_pop)
+            incidence = value), by = "age_group" ) %>%
+        left_join(df_pop, by = "age_group")
 
     # Calculate the risk per infection
     outcomes_risks_full <- outcomes_raw_full %>% calc_outcome_per_inf %>%
         select(!c(value, incidence)) %>% tidyr::pivot_wider(names_from = stat_summary, values_from = risk) %>%
         mutate(metric = "risk")
     outcomes_risks_full
-}
-
-#' @export
-plot_risks <- function(outcomes_risks_full) {
-    outcomes_risks_full %>% mutate(age_group = factor(age_group, levels = age_groups)) %>% 
-        mutate(outcome = factor(outcome, levels = outcomes)) %>% 
-        ggplot() + 
-            geom_ribbon(aes(x = age_group, ymin = lb_95, ymax = ub_95, group = outcome), alpha = 0.5) +
-            geom_line(aes(x = age_group, y = mean, group = outcome)) +
-            facet_grid(vars(outcome), scales = "free_y") + 
-            labs(y = "Risk per RSV infection", x = "Age group") + theme_bw() +
-            theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-    ggsave(here::here("outputs", "figs", "risks_per_infection.png"), width = 10, height = 10)
 }

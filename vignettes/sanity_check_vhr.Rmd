@@ -6,7 +6,8 @@
 devtools::load_all()
 
 RSVempty <- make_rsv_programme()
-# Load the relevant csv files`
+
+# Load the relevant csv files
 econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
 risks_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks.csv"))
 risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
@@ -22,9 +23,11 @@ plot_economics_fit(RSVempty)
 # SANITY CHECK ON BASELINE DYNAMICS
 ```{r}
 
+# Load the relevant csv files
 cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
 cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
 
+# Add the economic information to the class
 efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "nmab_post_wane.RData")) 
 efficacy <- get(efficacy_t)
 
@@ -100,7 +103,6 @@ df_states_pal %>% filter(risk_group == "LR", social_group == "n", state_name == 
     group_by(t, age_group, model_type) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 6) %>%
     ggplot() + geom_line(aes(t, tot_age, color = as.character(age_group))) + facet_grid(vars(model_type))
 
-
 df_states_vhr %>% filter(risk_group == "VHR", social_group == "n", state_name == "I0") %>%
     group_by(t, age_group, model_type) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 6) %>%
     ggplot() + geom_line(aes(t, tot_age, color = as.character(age_group))) + facet_grid(vars(model_type))
@@ -130,8 +132,6 @@ inci_df_pal %>% filter(incidence > 0) %>% group_by(age_group, t, risk_group) %>%
     ggplot() + 
         geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
         facet_grid(vars(risk_group), scales = "free_y") + theme_bw()
-
-
 
 
 ```

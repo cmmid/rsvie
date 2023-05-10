@@ -63,10 +63,10 @@ RSV_mab_s <- add_programme(RSVempty, prog_name = "mab_s", cal_mabs_s, cal_vhr_s,
 RSV_mab_s_cu <- add_programme(RSVempty, prog_name = "mab_s_cu", cal_mabs_s_cu, cal_vhr_s, immune_profile_mab)
 RSV_mab_yr <- add_programme(RSVempty, prog_name = "mab_yr", cal_mabs_yr, cal_vhr_yr, immune_profile_mab)
 
-RSV_none <- run(RSV_none)
-RSV_mab_s <- run(RSV_mab_s)
-RSV_mab_s_cu <- run(RSV_mab_s_cu)
-RSV_mab_yr <- run(RSV_mab_yr)
+RSV_none <- rsvie::run(RSV_none)
+RSV_mab_s <- rsvie::run(RSV_mab_s)
+RSV_mab_s_cu <- rsvie::run(RSV_mab_s_cu)
+RSV_mab_yr <- rsvie::run(RSV_mab_yr)
 
 ```
 
@@ -151,10 +151,10 @@ inci_df_mab_yr %>% filter(incidence > 0) %>%
 
 ```{r}
 
-RSV_none <- run(RSV_none)
-RSV_mab_s <- run(RSV_mab_s)
-RSV_mab_s_cu <- run(RSV_mab_s_cu)
-RSV_mab_yr <- run(RSV_mab_yr)
+RSV_none <- rsvie::run(RSV_none)
+RSV_mab_s <- rsvie::run(RSV_mab_s)
+RSV_mab_s_cu <- rsvie::run(RSV_mab_s_cu)
+RSV_mab_yr <- rsvie::run(RSV_mab_yr)
 
 obj_base <- RSV_none
 obj_inter <- list(RSV_mab_s, RSV_mab_s_cu, RSV_mab_yr)

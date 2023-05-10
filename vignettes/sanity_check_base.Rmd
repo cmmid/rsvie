@@ -17,6 +17,13 @@ plot_economics_fit(RSVempty)
 
 ```
 
+```{r}
+
+disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
+
+
+```
+
 
 # SANITY CHECK ON BASELINE DYNAMICS
 ```{r}
@@ -26,14 +33,12 @@ cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars
 
 immune_profile_none <- list(
     mass = list(product = "none"),
-    
-    vhr = list(
-        product = "none"),
-    direct = FALSE
+    vhr = list(product = "none"),
+    disease_eff = disease_eff
 )
 
 RSV_none <- add_programme(RSVempty, prog_name = "none", cal_none, cal_none, immune_profile_none)
-RSV_none <- run(RSV_none)
+RSV_none <- rsvie::run(RSV_none)
 
 ```
 
@@ -44,6 +49,9 @@ RSV_none <- run(RSV_none)
 
 none_test <- run_state(RSV_none)
 save(none_test,  file = here::here("inst", "extdata", "tests", "state_none_180423.RData") )
+
+df_states <- checkout_states(RSV_none)
+
 
 ######### THINGS TO CHECK OUT ARE SANE ###########
 # 1. Population sizes
@@ -89,10 +97,3 @@ inci_df %>% filter(incidence > 0) %>% group_by(age_group, t, risk_group) %>%
 
 
 ```
-
-
-```{r}
-
-
-
-````

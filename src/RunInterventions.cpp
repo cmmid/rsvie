@@ -6,7 +6,6 @@ using namespace Rcpp;
 
 #include "RunInterventions.h"
 
-
 RCPP_MODULE(RunInterventionsModule) {
     class_<RunInterventions>( "RunInterventions" )
     .constructor<double, double, NumericVector>()
@@ -37,7 +36,5 @@ RCPP_MODULE(RunInterventionsModule) {
 
     .method( "Sample", &RunInterventions::Sample )
     .method( "StatesValues", &RunInterventions::StatesValues )
-
-
     ;
 }

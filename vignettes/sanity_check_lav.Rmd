@@ -59,8 +59,8 @@ RSV_none <- add_programme(RSVempty, prog_name = "none", cal_none, cal_vhr_s, imm
 RSV_mab_s_65 <- add_programme(RSVempty, prog_name = "cal_lav_65", cal_lav_65, cal_vhr_s, immune_profile_lav)
 RSV_mab_s_75 <- add_programme(RSVempty, prog_name = "cal_lav_75", cal_lav_75, cal_vhr_s, immune_profile_lav)
 
-RSV_mab_s_65 <- run(RSV_mab_s_65)
-RSV_mab_s_75 <- run(RSV_mab_s_75)
+RSV_mab_s_65 <- rsvie::run(RSV_mab_s_65)
+RSV_mab_s_75 <- rsvie::run(RSV_mab_s_75)
 
 ```
 
@@ -114,9 +114,9 @@ inci_df_mab_75 %>% filter(incidence > 0) %>%
 
 ```{r}
 
-RSV_none <- run(RSV_none)
-RSV_mab_s_65 <- run(RSV_mab_s_65)
-RSV_mab_s_75 <- run(RSV_mab_s_75)
+RSV_none <- rsvie::run(RSV_none)
+RSV_mab_s_65 <- rsvie::run(RSV_mab_s_65)
+RSV_mab_s_75 <- rsvie::run(RSV_mab_s_75)
 
 obj_base <- RSV_none
 obj_inter <- list(RSV_mab_s_65, RSV_mab_s_75)

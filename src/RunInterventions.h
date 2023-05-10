@@ -409,7 +409,7 @@ public:
             dayNoAfterBurn = 0;
             valueLogLikelihood = 0;
             
-            rg = 29;
+            rg = 45;
             sg = rg * 3;
             ag = sg * 6 + 23;
     }
@@ -617,17 +617,29 @@ public:
     
     void getWeeklyIncidence(vector<double> &x0, NumericMatrix &sampleWeeklyIncidence, NumericMatrix &no_doses, bool epFlag)
     {
-      if (this->dayNoAfterBurn == 0){
-        for (int a = 0; a < this->A; a++) {
-            x0[this->ag*a + this->sg*6 + 1] = 0;
-            x0[this->ag*a + this->sg*6 + 2] = 0;
-            x0[this->ag*a + this->sg*6 + 3] = 0;
-            x0[this->ag*a + this->sg*6 + 4] = 0;
-            for (int j = 0; j < 9; j++) {
-                x0[this->ag*a + this->sg*6 + 8 + j] = 0.0; //Incidence at t_d = 0;
+        if (this->dayNoAfterBurn % 365 == 0) {
+            this->dayNoAfterBurn = 0;
+            for (int a = 0; a < this->A; a++) {
+                x0[this->ag*a + this->sg*6 + 1] = 0;
+                x0[this->ag*a + this->sg*6 + 2] = 0;
+                x0[this->ag*a + this->sg*6 + 3] = 0;
+                x0[this->ag*a + this->sg*6 + 4] = 0;
+                for (int j = 0; j < 9; j++) {
+                    x0[this->ag*a + this->sg*6 + 8 + j] = 0.0; //Incidence at t_d = 0;
+                }
             }
         }
-      }
+      //if (this->dayNoAfterBurn == 0){
+      //  for (int a = 0; a < this->A; a++) {
+       //     x0[this->ag*a + this->sg*6 + 1] = 0;
+        //    x0[this->ag*a + this->sg*6 + 2] = 0;
+         //   x0[this->ag*a + this->sg*6 + 3] = 0;
+          //  x0[this->ag*a + this->sg*6 + 4] = 0;
+       //     for (int j = 0; j < 9; j++) {
+       //         x0[this->ag*a + this->sg*6 + 8 + j] = 0.0; //Incidence at t_d = 0;
+       //     }
+      //  }
+     // }
         if (this->dayNoAfterBurn%7 == 0 && this->dayNoAfterBurn > 0)
         {
             for (int a = 0; a < this->A; a++) {
@@ -799,7 +811,7 @@ public:
         cal_mAB_HR_dose = MatrixXd::Zero(365, A);
         cal_LAV_HR_dose = MatrixXd::Zero(365, A);
 
-        direct = false;
+        direct = vac_info["direct"];
 
         // Sort out efficacy stuff here too
         eff_wane_lav = vac_info["lav_mass"];
@@ -1081,19 +1093,19 @@ public:
                   {   kp = 0*sg;       u = 0;             In = I_temp_p;   mu = muBp;  mu_mat = 0; p_vul = p_vulp; xi_b = xi_bp;
                   }
                   else if (s == 1)
-                  {   kp = 1*sg;       u = (cov_c);       In = I_temp_c;   mu = muBc;  mu_mat = 0; p_vul = p_vulc; xi_b = xi_bc;
+                  {   kp = 1*sg;       u = 1;       In = I_temp_c;   mu = muBc;  mu_mat = 0; p_vul = p_vulc; xi_b = xi_bc;
                   }
                   else if (s == 2)
-                  {   kp = 2*sg;       u = (1-cov_c);     In = I_temp_n;   mu = muBn;  mu_mat = 0; p_vul = p_vuln; xi_b = xi_bn;
+                  {   kp = 2*sg;       u = 1;     In = I_temp_n;   mu = muBn;  mu_mat = 0; p_vul = p_vuln; xi_b = xi_bn;
                   }
                   else if (s == 3)
                   {   kp = 3*sg;       u = 0;             In = I_temp_p_v; mu = muBpv; mu_mat = 0; p_vul = p_vulpv; xi_b = xi_bpv;
                   }
                   else if (s == 4)
-                  {   kp = 4*sg;       u = (cov_c);       In = I_temp_c_v; mu = muBcv*(1-vac_cal(t1,0)); mu_mat = muBcv*vac_cal(t1,0); p_vul = p_vulcv;  xi_b = xi_bcv;
+                  {   kp = 4*sg;       u = 1;       In = I_temp_c_v; mu = muBcv*(1-vac_cal(t1,a)); mu_mat = muBcv*vac_cal(t1,a); p_vul = p_vulcv;  xi_b = xi_bcv;
                   }
                   else
-                  {   kp = 5*sg;       u = (1-cov_c);     In = I_temp_n_v; mu = muBnv; mu_mat = 0; p_vul = p_vulnv;  xi_b = xi_bnv;
+                  {   kp = 5*sg;       u = 1;     In = I_temp_n_v; mu = muBnv; mu_mat = 0; p_vul = p_vulnv;  xi_b = xi_bnv;
                   }
               }
               else
@@ -1135,7 +1147,7 @@ public:
                         } else {
                             mu = muBnv; mu_mat = 0;
                         }
-                    }
+                    } 
                   //   Rcpp::Rcout << "Risk groups parameters: " << r << std::endl;
 
                   double PST = 0;
@@ -1172,40 +1184,36 @@ public:
                       if (a < 12)
                       {
                           // AGING first 12 months, all risk and social groups are pooled
-                          for (int i = 0; i < 21; i++)
-                              PS[i] = (x[pj+0*sg+0*rg+i]+x[pj+0*sg+1*rg+i]+x[pj+0*sg+2*rg+i] + x[pj+1*sg+0*rg+i]+x[pj+1*sg+1*rg+i]+x[pj+1*sg+2*rg+i] + x[pj+2*sg+0*rg+i] + x[pj+2*sg+1*rg+i]+x[pj+2*sg+2*rg+i]);
-                          // AGING, all social groups are pooled
-                          for (int i = 21; i < rg; i++)
-                              PS[i] = x[pj+0*sg+r*rg+i] + x[pj+1*sg+r*rg+i] + x[pj+2*sg+r*rg+i];
+                            for (int i = 0; i < 21; i++)
+                                PS[i] = x[pj+s*sg+0*rg+i] + x[pj+s*sg+1*rg+i] + x[pj+s*sg+2*rg+i];
+                                
+                            for (int i = 21; i < rg; i++)
+                                PS[i] = x[pj+s*sg+0*rg+i] + x[pj+s*sg+1*rg+i] + x[pj+s*sg+2*rg+i];
                       }
                       else
                       {
                           // AGING, >1 years, all risk and social groups are pooled
                           for (int i = 0; i < rg; i++)
-                              PS[i] = (x[pj+0*sg+0*rg+i]+x[pj+0*sg+1*rg+i]+x[pj+0*sg+2*rg+i] + x[pj+1*sg+0*rg+i]+x[pj+1*sg+1*rg+i]+x[pj+1*sg+2*rg+i] + x[pj+2*sg+0*rg+i] + x[pj+2*sg+1*rg+i]+x[pj+2*sg+2*rg+i]);
+                                PS[i] = (x[pj+0*sg+0*rg+i]+x[pj+0*sg+1*rg+i]+x[pj+0*sg+2*rg+i] + x[pj+1*sg+0*rg+i]+x[pj+1*sg+1*rg+i]+x[pj+1*sg+2*rg+i] + x[pj+2*sg+0*rg+i]+x[pj+2*sg+1*rg+i]+x[pj+2*sg+2*rg+i]);
                       }
                   }
                   else
                   {
                         if (a < 12)
                         {
-                          // AGING first 12 months, all risk and social groups are pooled
+                            // AGING first 12 months, all risk and social groups are pooled
                             for (int i = 0; i < 21; i++)
-                                PS[i] = x[pj+3*sg+0*rg+i] + x[pj+3*sg+1*rg+i] + x[pj+3*sg+2*rg+i] + x[pj+4*sg+0*rg+i] + x[pj+4*sg+1*rg+i] + x[pj+4*sg+2*rg+i] + x[pj+5*sg+0*rg+i] + x[pj+5*sg+1*rg+i] + x[pj+5*sg+2*rg+i];
-                          // AGING, all social groups are pooled
-
-
-                            for (int i = 21; i < rg; i++) {
-                                PS[i] = x[pj+s*sg+r*rg+i];
-                            }
-                            //PS[i] = x[pj+3*sg+r*rg+i] + x[pj+4*sg+r*rg+i] + x[pj+5*sg+r*rg+i];
- 
+                                PS[i] = x[pj+s*sg+0*rg+i] + x[pj+s*sg+1*rg+i] + x[pj+s*sg+2*rg+i]; //x[pj+3*sg+0*rg+i] + x[pj+3*sg+1*rg+i] + x[pj+3*sg+2*rg+i] + x[pj+4*sg+0*rg+i] + x[pj+4*sg+1*rg+i] + x[pj+4*sg+2*rg+i] + x[pj+5*sg+0*rg+i] + x[pj+5*sg+1*rg+i] + x[pj+5*sg+2*rg+i];
+                                
+                            // AGING, all social groups are pooled
+                            for (int i = 21; i < rg; i++) 
+                                PS[i] = x[pj+s*sg+0*rg+i] + x[pj+s*sg+1*rg+i] + x[pj+s*sg+2*rg+i]; 
                       }
                       else
                       {
                           // AGING, >1 years, all risk and social groups are pooled
-                          for (int i = 0; i < rg; i++)
-                              PS[i] = x[pj+3*sg+0*rg+i] + x[pj+3*sg+1*rg+i] + x[pj+3*sg+2*rg+i] + x[pj+4*sg+0*rg+i] + x[pj+4*sg+1*rg+i] + x[pj+4*sg+2*rg+i] + x[pj+5*sg+0*rg+i] + x[pj+5*sg+1*rg+i] + x[pj+5*sg+2*rg+i];
+                            for (int i = 0; i < rg; i++)
+                                PS[i] = x[pj+3*sg+0*rg+i] + x[pj+3*sg+1*rg+i] + x[pj+3*sg+2*rg+i] + x[pj+4*sg+0*rg+i] + x[pj+4*sg+1*rg+i] + x[pj+4*sg+2*rg+i] + x[pj+5*sg+0*rg+i] + x[pj+5*sg+1*rg+i] + x[pj+5*sg+2*rg+i];
                       }
                   }
                   
@@ -1235,23 +1243,22 @@ public:
                         // Get the waning rates for each of the categories 
                         if (r == 0) {
                             loss_mat = loss_lav_S0 = loss_lav_S1 = loss_lav_S2 = loss_lav_S3 = 0;
-                            lossMS0 = x[a*ag + s*sg + r*rg + 22]*(eff_wane_vhr);
-                            lossMS1 = x[a*ag + s*sg + r*rg + 23]*(eff_wane_vhr);
-                            lossMS2 = x[a*ag + s*sg + r*rg + 24]*(eff_wane_vhr); 
+                            lossMS0 = x[p + 26]*(eff_wane_vhr);
+                            lossMS1 = x[p + 29]*(eff_wane_vhr);
+                            lossMS2 = x[p + 32]*(eff_wane_vhr); 
                         } else if (r == 2){
-                            loss_mat = x[a*ag + s*sg + r*rg + 21]*(eff_wane_mat);
-                            lossMS0 = x[a*ag + s*sg + r*rg + 22]*(eff_wane_mab);
-                            lossMS1 = x[a*ag + s*sg + r*rg + 23]*(eff_wane_mab);
-                            lossMS2 = x[a*ag + s*sg + r*rg + 24]*(eff_wane_mab); 
-                            loss_lav_S0 = x[a*ag + s*sg + r*rg + 25]*(eff_wane_lav); 
-                            loss_lav_S1 = x[a*ag + s*sg + r*rg + 26]*(eff_wane_lav); 
-                            loss_lav_S2 = x[a*ag + s*sg + r*rg + 27]*(eff_wane_lav); 
-                            loss_lav_S3 = x[a*ag + s*sg + r*rg + 28]*(eff_wane_lav); 
+                            loss_mat = x[p + 21]*(eff_wane_mat);
+                            lossMS0 = x[p + 26]*(eff_wane_mab);
+                            lossMS1 = x[p + 29]*(eff_wane_mab);
+                            lossMS2 = x[p + 32]*(eff_wane_mab); 
+                            loss_lav_S0 = x[p + 35]*(eff_wane_lav); 
+                            loss_lav_S1 = x[p + 38]*(eff_wane_lav); 
+                            loss_lav_S2 = x[p + 41]*(eff_wane_lav); 
+                            loss_lav_S3 = x[p + 44]*(eff_wane_lav); 
 
                         } else if (r == 1) {
                             loss_mat = loss_lav_S0 = loss_lav_S1 = loss_lav_S2 = loss_lav_S3 = lossMS0 = lossMS1 = lossMS2 = 0;
                         }
-
 
                         step_out = 0; step_in = 0; step_in_S0 = 0; step_in_S1 = 0;
                         cpmu = 0; cpmu_dose = 0;
@@ -1390,7 +1397,7 @@ public:
                     VectorXd mab_trans = VectorXd::Zero(12);
                     VectorXd lav_trans = VectorXd::Zero(4);
 
-                    // Check for truncation values for monoclonal antibodies
+                    // Check for truncation values for Monoclonal antibodies
                     for (int i = 0; i < 12; i++)
                     {
                         double state = x[p+i];
@@ -1424,9 +1431,9 @@ public:
 
                   // Need to add a truncation mechanism to ensure that x[p+i] is always greater than 0
 
-                  dxdt[p+0] = (1.0-p_vul)*mu*rp - x[p+0]*xi*xi_b - (x[p+0])*ej1 + PS[0]*ej*rp*u - mab_trans[0]; //x[o+0]*(cMo) - x[p+0]*step_out;
+                  dxdt[p+0] = (1.0-p_vul)*mu*rp - x[p+0]*xi*xi_b - (x[p+0])*ej1 + PS[0]*ej*rp*u - mab_trans[0]; 
                   
-                  dxdt[p+1] = p_vul*mu*rp  + x[p+0]*xi*xi_b + lossMS0 - x[p+1]*In*beta - (x[p+1])*ej1 + PS[1]*ej*rp*u - mab_trans[1] - x[o+1]*step_out - lav_trans[0] + step_in_S0;
+                  dxdt[p+1] = p_vul*mu*rp  + x[p+0]*xi*xi_b + lossMS0 - x[p+1]*In*beta - (x[p+1])*ej1 + PS[1]*ej*rp*u - mab_trans[1] - x[o+1]*step_out - lav_trans[0] + step_in_S0 + x[p+23]*(eff_wane_mat);
                   dxdt[p+2] = x[p+1]*In*beta                 - x[p+2]*si          - (x[p+2])*ej1 + PS[2]*ej*rp*u -mab_trans[2] - x[p+2]*step_out;
                   dxdt[p+3] = x[p+2]*si*pA[a]                - x[p+3]*ga0*rho     -  (x[p+3])*ej1 + PS[3]*ej*rp*u - mab_trans[3] - x[p+3]*step_out;
                   dxdt[p+4] = x[p+2]*si*(1.0-pA[a])          - x[p+4]*ga0         - (x[p+4])*ej1 + PS[4]*ej*rp*u - mab_trans[4] - x[p+4]*step_out;
@@ -1451,21 +1458,39 @@ public:
                   dxdt[p+20] = x[p+19]*ga3 + x[p+18]*ga3*rho - x[p+20]*om         - (x[p+20])*ej1 + PS[20]*ej*rp*u;
                   
                   // Maternal vaccination
-                  dxdt[p+21] = mu_mat*rp - loss_mat - x[p+21]*ej1 + PS[21]*ej*u*rp;  
+                  dxdt[p+21] = mu_mat*rp - x[p+21]*eff_wane_mat - x[p+21]*ej1 + PS[21]*ej*u*rp;  
+                  dxdt[p+22] = x[p+21]*eff_wane_mat - x[p+22]*eff_wane_mat - x[p+22]*ej1 + PS[22]*ej*u*rp;  
+                  dxdt[p+23] = x[p+22]*eff_wane_mat - x[p+23]*eff_wane_mat - x[p+23]*ej1 + PS[23]*ej*u*rp;  
 
                   // Monoclonal protection
-                  dxdt[p+22] = x_tot_1 - lossMS0 - x[p+22]*ej1 + PS[22]*ej*u*rp;  //pal
-                  dxdt[p+23] = x_tot_2 - lossMS1 - x[p+23]*ej1 + PS[23]*ej*u*rp; // + x[(a-1)*ag + s*sg + r*rg +22]*ej;
-                  dxdt[p+24] = x_tot_3 - lossMS2 - x[p+24]*ej1 + PS[24]*ej*u*rp; // + x[(a-1)*ag +
+                  dxdt[p+24] = x_tot_1 - x[p+24]*eff_wane_mab  - x[p+24]*ej1 + PS[24]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 1, erlang-3 distributed)
+                  dxdt[p+25] = x[p+24]*eff_wane_mab - x[p+25]*eff_wane_mab  - x[p+25]*ej1 + PS[25]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+26] = x[p+25]*eff_wane_mab - lossMS0 - x[p+26]*ej1 + PS[26]*ej*u*rp;   // Monoclonal protection for exposure 1 (group 3, erlang-3 distributed)
 
-                    // LAV vaccination
-                  dxdt[p+25] = lav_trans[0] - loss_lav_S0 - x[p+25]*ej1 + PS[25]*ej*u*rp; // + x[(a-1)*ag +
-                  dxdt[p+26] = lav_trans[1] - loss_lav_S1 - x[p+26]*ej1 + PS[26]*ej*u*rp; // + x[(a-1)*ag +
-                  dxdt[p+27] = lav_trans[2] - loss_lav_S2 - x[p+27]*ej1 + PS[27]*ej*u*rp; // + x[(a-1)*ag +
-                  dxdt[p+28] = lav_trans[3] - loss_lav_S3 -  x[p+28]*ej1 + PS[28]*ej*u*rp; // + x[(a-1)*ag +
+                  dxdt[p+27] = x_tot_2 - x[p+27]*eff_wane_mab - x[p+27]*ej1 + PS[27]*ej*u*rp; // Monoclonal protection for exposure 2 (group 1, erlang distributed)
+                  dxdt[p+28] = x[p+27]*eff_wane_mab - x[p+28]*eff_wane_mab - x[p+28]*ej1 + PS[28]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 1, erlang distributed)
+                  dxdt[p+29] = x[p+28]*eff_wane_mab - lossMS1 - x[p+29]*ej1 + PS[29]*ej*u*rp; // Monoclonal protection for exposure 2 (group 2, erlang distributed)
 
-                 // dxdt[p+21] = mu*rp*cpmu + cpo*PST     - x[p+21]*ej1 + x[p+21]*ej1;
-                 // dxdt[p+22] = mu*rp*cMmu + PST2*ej*u*rp*cMo - loss    - x[p+22]*ej1 + PS[22]*ej*u*rp*(1-cpo)*(1-cMo) ; // + x[(a-1)*ag + s*sg + r*rg +22]*ej;
+                  dxdt[p+30] = x_tot_3 - x[p+30]*eff_wane_mab - x[p+30]*ej1 + PS[30]*ej*u*rp; // Monoclonal protection for exposure 3 (group 1, erlang distributed)
+                  dxdt[p+31] = x[p+30]*eff_wane_mab - x[p+31]*eff_wane_mab - x[p+31]*ej1 + PS[31]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 1, erlang distributed)
+                  dxdt[p+32] = x[p+31]*eff_wane_mab - lossMS2 - x[p+32]*ej1 + PS[32]*ej*u*rp;  // Monoclonal protection for exposure 3 (group 2, erlang distributed)
+      
+                   // LAV protection
+                  dxdt[p+33] = lav_trans[0] - x[p+33]*eff_wane_lav - x[p+33]*ej1 + PS[33]*ej*u*rp; // LAV protection for exposure 1 (group 1, erlang-3 distributed)
+                  dxdt[p+34] = x[p+33]*eff_wane_lav - x[p+34]*eff_wane_mab - x[p+34]*ej1 + PS[34]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+35] = x[p+34]*eff_wane_lav - loss_lav_S0 - x[p+35]*ej1 + PS[35]*ej*u*rp; // LAV protection for exposure 1 (group 3, erlang-3 distributed)
+
+                  dxdt[p+36] = lav_trans[1] - x[p+36]*eff_wane_lav - x[p+36]*ej1 + PS[36]*ej*u*rp; // LAV protection for exposure 2 (group 1, erlang-3 distributed)
+                  dxdt[p+37] = x[p+36]*eff_wane_lav - x[p+37]*eff_wane_mab - x[p+37]*ej1 + PS[37]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+38] = x[p+37]*eff_wane_lav - loss_lav_S1 - x[p+38]*ej1 + PS[38]*ej*u*rp; // LAV protection for exposure 2 (group 3, erlang-3 distributed)
+
+                  dxdt[p+39] = lav_trans[2] - x[p+39]*eff_wane_lav - x[p+39]*ej1 + PS[39]*ej*u*rp; // LAV protection for exposure 3 (group 1, erlang-3 distributed)
+                  dxdt[p+40] = x[p+39]*eff_wane_lav - x[p+40]*eff_wane_mab - x[p+40]*ej1 + PS[40]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+41] = x[p+40]*eff_wane_lav - loss_lav_S2 - x[p+41]*ej1 + PS[41]*ej*u*rp; // LAV protection for exposure 3 (group 3, erlang-3 distributed)
+
+                  dxdt[p+42] = lav_trans[3] - x[p+42]*eff_wane_lav - x[p+42]*ej1 + PS[42]*ej*u*rp; // LAV protection for exposure 4 (group 1, erlang-3 distributed)
+                  dxdt[p+43] = x[p+42]*eff_wane_lav - x[p+43]*eff_wane_mab - x[p+43]*ej1 + PS[43]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+44] = x[p+43]*eff_wane_lav - loss_lav_S3 - x[p+44]*ej1 + PS[44]*ej*u*rp; // LAV protection for exposure 4 (group 3, erlang-3 distributed)
                 }
             }
           // Vaccine groups
