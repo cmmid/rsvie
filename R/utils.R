@@ -30,7 +30,7 @@ checkout_states <- function(object) {
     inner <- c(
         "M", 
         map(0:3, ~paste0(c("S", "E", "A", "I",  "R"), .x)) %>% unlist,
-        "V_mat1", "V_mat2", "V_mat3", 
+        "V_mat1", "V_mat2", "V_mat3",
         "V0_mab1", "V0_mab2", "V0_mab3",
         "V1_mab1", "V1_mab2", "V1_mab3",
         "V2_mab1", "V2_mab2", "V2_mab3",

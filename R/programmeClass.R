@@ -148,6 +148,9 @@ setMethod("add_economics",  signature(object = "RSVProgramme"),
         object@risks_df <- risks_raw
         object@risks_vhr_df <- risks_vhr_raw
         object@outcomes_vec <- econ_raw$outcome %>% unique
+        if(length(econ_raw$outcome %>% unique) == 0) {
+            stop("ERROR: no outcomes detected.")
+        }
         object@samples_outcomes <- output_samples(object@econ_df, object@risks_df, "")
         object@samples_outcomes_VHR <- output_samples(object@econ_df, object@risks_vhr_df, "VHR")
         object

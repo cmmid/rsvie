@@ -1247,7 +1247,7 @@ public:
                             lossMS1 = x[p + 29]*(eff_wane_vhr);
                             lossMS2 = x[p + 32]*(eff_wane_vhr); 
                         } else if (r == 2){
-                            loss_mat = x[p + 21]*(eff_wane_mat);
+                            loss_mat = x[p + 23]*(eff_wane_mat);
                             lossMS0 = x[p + 26]*(eff_wane_mab);
                             lossMS1 = x[p + 29]*(eff_wane_mab);
                             lossMS2 = x[p + 32]*(eff_wane_mab); 
@@ -1458,9 +1458,9 @@ public:
                   dxdt[p+20] = x[p+19]*ga3 + x[p+18]*ga3*rho - x[p+20]*om         - (x[p+20])*ej1 + PS[20]*ej*rp*u;
                   
                   // Maternal vaccination
-                  dxdt[p+21] = mu_mat*rp - x[p+21]*eff_wane_mat - x[p+21]*ej1 + PS[21]*ej*u*rp;  
-                  dxdt[p+22] = x[p+21]*eff_wane_mat - x[p+22]*eff_wane_mat - x[p+22]*ej1 + PS[22]*ej*u*rp;  
-                  dxdt[p+23] = x[p+22]*eff_wane_mat - x[p+23]*eff_wane_mat - x[p+23]*ej1 + PS[23]*ej*u*rp;  
+                  dxdt[p+21] = mu_mat*rp - x[p+21]*eff_wane_mat - x[p+21]*ej1 + PS[21]*ej*u*rp;
+                  dxdt[p+22] = x[p+21]*eff_wane_mat - x[p+22]*eff_wane_mat - x[p+22]*ej1 + PS[22]*ej*u*rp;
+                  dxdt[p+23] = x[p+22]*eff_wane_mat - x[p+23]*eff_wane_mat - x[p+23]*ej1 + PS[23]*ej*u*rp;
 
                   // Monoclonal protection
                   dxdt[p+24] = x_tot_1 - x[p+24]*eff_wane_mab  - x[p+24]*ej1 + PS[24]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 1, erlang-3 distributed)
@@ -1477,19 +1477,19 @@ public:
       
                    // LAV protection
                   dxdt[p+33] = lav_trans[0] - x[p+33]*eff_wane_lav - x[p+33]*ej1 + PS[33]*ej*u*rp; // LAV protection for exposure 1 (group 1, erlang-3 distributed)
-                  dxdt[p+34] = x[p+33]*eff_wane_lav - x[p+34]*eff_wane_mab - x[p+34]*ej1 + PS[34]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+34] = x[p+33]*eff_wane_lav - x[p+34]*eff_wane_lav - x[p+34]*ej1 + PS[34]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
                   dxdt[p+35] = x[p+34]*eff_wane_lav - loss_lav_S0 - x[p+35]*ej1 + PS[35]*ej*u*rp; // LAV protection for exposure 1 (group 3, erlang-3 distributed)
 
                   dxdt[p+36] = lav_trans[1] - x[p+36]*eff_wane_lav - x[p+36]*ej1 + PS[36]*ej*u*rp; // LAV protection for exposure 2 (group 1, erlang-3 distributed)
-                  dxdt[p+37] = x[p+36]*eff_wane_lav - x[p+37]*eff_wane_mab - x[p+37]*ej1 + PS[37]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+37] = x[p+36]*eff_wane_lav - x[p+37]*eff_wane_lav - x[p+37]*ej1 + PS[37]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
                   dxdt[p+38] = x[p+37]*eff_wane_lav - loss_lav_S1 - x[p+38]*ej1 + PS[38]*ej*u*rp; // LAV protection for exposure 2 (group 3, erlang-3 distributed)
 
                   dxdt[p+39] = lav_trans[2] - x[p+39]*eff_wane_lav - x[p+39]*ej1 + PS[39]*ej*u*rp; // LAV protection for exposure 3 (group 1, erlang-3 distributed)
-                  dxdt[p+40] = x[p+39]*eff_wane_lav - x[p+40]*eff_wane_mab - x[p+40]*ej1 + PS[40]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+40] = x[p+39]*eff_wane_lav - x[p+40]*eff_wane_lav - x[p+40]*ej1 + PS[40]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
                   dxdt[p+41] = x[p+40]*eff_wane_lav - loss_lav_S2 - x[p+41]*ej1 + PS[41]*ej*u*rp; // LAV protection for exposure 3 (group 3, erlang-3 distributed)
 
                   dxdt[p+42] = lav_trans[3] - x[p+42]*eff_wane_lav - x[p+42]*ej1 + PS[42]*ej*u*rp; // LAV protection for exposure 4 (group 1, erlang-3 distributed)
-                  dxdt[p+43] = x[p+42]*eff_wane_lav - x[p+43]*eff_wane_mab - x[p+43]*ej1 + PS[43]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
+                  dxdt[p+43] = x[p+42]*eff_wane_lav - x[p+43]*eff_wane_lav - x[p+43]*ej1 + PS[43]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
                   dxdt[p+44] = x[p+43]*eff_wane_lav - loss_lav_S3 - x[p+44]*ej1 + PS[44]*ej*u*rp; // LAV protection for exposure 4 (group 3, erlang-3 distributed)
                 }
             }
