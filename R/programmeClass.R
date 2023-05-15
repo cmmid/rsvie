@@ -28,7 +28,7 @@ setClass(
         samples_outcomes_VHR = "list",
         efficacies = "vector",
         cov_mat = "numeric",
-        eff_1season = "logical"
+        full_output = "logical"
     )
 )
 
@@ -118,7 +118,7 @@ make_rsv_programme <- function(S = 10) {
     new("RSVProgramme", model = model, uk_data = uk_data_sum,
         model_par = model_par, econ_par = econ_par,
         post = post, seeds = seeds, S = S,
-        eff_1season = TRUE,
+        full_output = FALSE,
         model_calendar = list(), dose_calendar = list(), immune_profile = list()
         )
 }
@@ -175,8 +175,8 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
     function(object, prog_name, cal, cal_vhr, immune_profile) {
 
         object@prog_name <- prog_name
-        if (!is.null(immune_profile$eff_1season)) {
-             object@eff_1season <- immune_profile$eff_1season
+        if (!is.null(immune_profile$full_output)) {
+            object@full_output <- immune_profile$full_output
         }
 
         if (!dir.exists(here::here("outputs", "extra", prog_name))) {

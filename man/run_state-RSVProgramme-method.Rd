@@ -4,7 +4,7 @@
 \alias{run_state,RSVProgramme-method}
 \title{A setMethod for the \code{run_state} function}
 \usage{
-\S4method{run_state}{RSVProgramme}(object, direct = FALSE)
+\S4method{run_state}{RSVProgramme}(object, S_i = 1, direct = FALSE)
 }
 \arguments{
 \item{object}{RSVProgramme object}

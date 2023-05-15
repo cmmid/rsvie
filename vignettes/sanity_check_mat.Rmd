@@ -26,27 +26,29 @@ cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendar
 cal_mat_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_s.csv")) 
 cal_mat_yr <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_yr.csv")) 
 
+disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
 
-efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_post_wane.RData")) 
+efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_nobound_post_wane.RData")) 
 efficacy <- get(efficacy_t)
 
-efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_post_wane.RData")) 
+efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "mat_nobound_post_wane.RData")) 
 efficacy_mat <- get(efficacy_t)
 
 immune_profile_mat <- list(
     mass = list(
         product = "mat",
-        wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a), b = abs(efficacy$wane_b),
+        wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a_er3), b = abs(efficacy$wane_b_er3),
         sero_delay = "flu_like",
         gest_age_devilery_wks = "26 34",
-        wane_function_neonate = "a * exp(b * t))", a_mat = abs(efficacy_mat$wane_a), b_mat = mean(abs(efficacy_mat$wane_b))
+        wane_function_neonate = "a * exp(b * t))", a_mat = abs(efficacy_mat$wane_a_er3), b_mat = mean(abs(efficacy_mat$wane_b_er3))
     ),
     vhr = list(
         product = "pal",
         wane_function = "a * exp(b * t))", a = 0.7, b = 1 / 60,
         sero_delay = "none"
     ),
-    direct = FALSE
+    direct = FALSE,
+    disease_eff
 )
 
 immune_profile_mat$mass$a_mat

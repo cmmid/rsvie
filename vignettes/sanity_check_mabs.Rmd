@@ -32,7 +32,8 @@ cal_mabs_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calenda
 cal_mabs_s_cu <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mabs_s_cu.csv")) 
 cal_mabs_yr <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mabs_yr.csv")) 
 
-efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "nmab_post_wane.RData")) 
+disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
+efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "nmab_nobound_post_wane.RData")) 
 efficacy <- get(efficacy_t)
 
 immune_profile_none <- list(
@@ -46,15 +47,16 @@ immune_profile_none <- list(
 immune_profile_mab <- list(
     mass = list(
         product = "mab",
-        wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a), b = abs(efficacy$wane_b),
+        wane_function = "a * exp(b * t))",  a = abs(efficacy$wane_a_er3), b = abs(efficacy$wane_b_er3),
         sero_delay = "none"
     ),
     vhr = list(
         product = "mab",
-        wane_function = "a * exp(b * t))", a = abs(efficacy$wane_a), b = abs(efficacy$wane_b),
+        wane_function = "a * exp(b * t))", a = abs(efficacy$wane_a_er3), b = abs(efficacy$wane_b_er3),
         sero_delay = "none"
     ),
-    direct = FALSE
+    direct = FALSE,
+    disease_eff = disease_eff
 )
 
 

@@ -117,7 +117,6 @@ convert_to_outcomes <- function(object) {
     } 
 
     outcomes_week_age <- outcome_per_sample %>% bind_rows 
-    outcomes_week_age_trim <- outcomes_week_age %>% filter(week_no %in% (c(1:52) + 104))
 
     dis_qaly_df <- outcomes_week_age %>% mutate(qaly = qaly * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(qaly = sum(qaly))
     dis_cost_df <- outcomes_week_age %>% mutate(cost = cost * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(cost = sum(cost))
@@ -127,8 +126,12 @@ convert_to_outcomes <- function(object) {
     dis_cost_df <- dis_cost_df %>% left_join(dis_cost_df %>% group_by(s) %>% summarise(total = sum(cost)),
         by = "s")
 
+    if(!object@full_output) {
+        outcomes_week_age <- outcomes_week_age %>% filter(week_no %in% (c(1:52) + 104))
+    }
+
     outcomes <- list(
-        outcomes = outcomes_week_age_trim,
+        outcomes = outcomes_week_age,
         costs = dis_cost_df,
         qaly = dis_qaly_df,
         doses = object@raw_inci[[1]]$doses

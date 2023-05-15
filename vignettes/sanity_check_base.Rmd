@@ -19,16 +19,12 @@ plot_economics_fit(RSVempty)
 
 ```{r}
 
-disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
-
-
-```
-
 
 # SANITY CHECK ON BASELINE DYNAMICS
-```{r}
+
 
 # Load a calendar with no intervention 
+disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
 cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
 
 immune_profile_none <- list(
@@ -36,6 +32,8 @@ immune_profile_none <- list(
     vhr = list(product = "none"),
     disease_eff = disease_eff
 )
+
+#immune_profile_none$full_output <- TRUE
 
 RSV_none <- add_programme(RSVempty, prog_name = "none", cal_none, cal_none, immune_profile_none)
 RSV_none <- rsvie::run(RSV_none)
