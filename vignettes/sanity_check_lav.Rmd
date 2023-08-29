@@ -1,6 +1,7 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown showing how to simulate the package assuming Palivizumab and active vaccination programme only.
 
-# Load the packages
+## Add economics, risks of the programme
+
 ```{r}
 
 # initialize the class
@@ -19,8 +20,7 @@ plot_economics_fit(RSVempty)
 
 ```
 
-
-# SANITY CHECK ON BASELINE DYNAMICS
+## Add the intervention programme (older adult programme)
 
 ```{r}
 
@@ -66,19 +66,13 @@ RSV_mab_s_75 <- rsvie::run(RSV_mab_s_75)
 
 ```
 
-## Check out the PALIVIZUMAB PROGRAMME FIRST
+## Some sanity checks to make sure everything is working
 
 ```{r}
 
 RSV_mab_s_65_states <- checkout_states(RSV_mab_s_65)
 RSV_mab_s_75_states <- checkout_states(RSV_mab_s_75)
 
-######### THINGS TO CHECK OUT ARE SANE IN STATES ###########
-# Compare dynamics between both implementations
-# Check dynamics of the VHR
-# 1.2. dynamics allocation in the groups`
-## VHR has big difference sin incidence
-## LR is not perturbed
 
 RSV_mab_s_65_states %>% filter(risk_group == "VHR", social_group == "n",state_name == "V3_lav") %>% 
         ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))

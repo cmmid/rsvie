@@ -171,7 +171,7 @@ convert_mat_to_trans_cal <- function(all_dose, all_sero, cal_vhr, daily_uptake_v
                 latest_date <- 40 - as.numeric(numbers[[1]][2])
                 eff_mat <- immune_profile$a_mat
                 for(k in (latest_date * 7):(earliest_date * 7 - 1)) {
-                    sero_model[(t + k - 1) %% 365 + 1, 1] <- sero_model[(t + k - 1) %% 365 + 1, 1] + dose_model[(t + k - 1) %% 365 + 1, 20] * 365 * dunif(k, latest_date * 7, earliest_date * 7)
+                    sero_model[(t + k - 1) %% 365 + 1, 1] <- sero_model[(t + k - 1) %% 365 + 1, 1] + dose_model[(t - 1) %% 365 + 1, 20] * 365 * dunif(k, latest_date * 7, earliest_date * 7)
                 }
             }
             sero_model[sero_model > 1] <- 1

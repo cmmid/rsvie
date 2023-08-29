@@ -1,6 +1,7 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown showing how to simulate the package assuming Palivizumab and maternal vaccination programme only.
 
-# Load the packages
+## Add economics, risks of the programme
+
 ```{r}
 
 devtools::load_all()
@@ -19,7 +20,8 @@ plot_economics_fit(RSVempty)
 ```
 
 
-# SANITY CHECK ON BASELINE DYNAMICS
+## Add the intervention programme
+
 ```{r}
 
 cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
@@ -48,10 +50,8 @@ immune_profile_mat <- list(
         sero_delay = "none"
     ),
     direct = FALSE,
-    disease_eff
+    disease_eff = disease_eff
 )
-
-immune_profile_mat$mass$a_mat
 
 
 RSV_mat_s <- add_programme(RSVempty, prog_name = "mat_s", cal_mat_s, cal_vhr_s, immune_profile_mat)
@@ -65,7 +65,7 @@ plot_calendar(RSV_mat_yr)
 
 ```
 
-## Check out the PALIVIZUMAB PROGRAMME FIRST
+## Some sanity checks to make sure everything is working
 
 ```{r}
 
@@ -121,7 +121,6 @@ RSV_mat_yr_states %>% filter(risk_group == "LR", social_group == "c", state_name
 RSV_mat_s_states %>% filter(risk_group == "LR", social_group == "c", state_name == "V3_lav") %>% 
         filter(age_group >= 13) %>%
         ggplot() + geom_line(aes(t, incidence, color = as.character(age_group))) + facet_grid(vars(model_type))
-
 
 
 

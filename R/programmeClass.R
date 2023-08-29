@@ -117,7 +117,7 @@ make_rsv_programme <- function(S = 10) {
 
     new("RSVProgramme", model = model, uk_data = uk_data_sum,
         model_par = model_par, econ_par = econ_par,
-        post = post, seeds = seeds, S = S,
+        post = post, seeds = seeds + 1, S = S,
         full_output = FALSE,
         model_calendar = list(), dose_calendar = list(), immune_profile = list()
         )

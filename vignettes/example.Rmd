@@ -1,71 +1,175 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown explaining how to use the RSV impact package
 
-# Load the packages
+## Load the packages
+
 ```{r}
-# initialize the class
+
+# Load the package (or library(rsvie))
 devtools::load_all()
+
+# This defines an RSVProgramme class
 RSVempty <- make_rsv_programme()
 
-# Load the relevant csv files` 
-econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
-risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
+# To see what in these slots 
+RSVempty %>% str
 
-# The risk per infection can be difficult to to obtin from the literature. However we can aggregate the 
-# risk per infection from the incidence of the outcome and the risk per case. To do this we need to load the
-# incidence of the outcome and the model of the incidence of the outcome (from the fitting)
+```
+
+Let's have a more detailed look at what's in these slots. I wouldn't recommend changing thes, but future iterations of the package should allow for more flexiblity. 
+
+```{r}
+
+RSVempty@prog_name # Name of the programme considered (currently empty)
+RSVempty@econ_name # Name of the economics conisdered (currently empty)
+RSVempty@uk_data # UK-specific parametrs which are used to define the model (RSVempty@model is copied from this)
+RSVempty@model # This is the R interface to the cpp class defined in src/RunIntervention.cpp
+RSVempty@model_par # This gives the burn-in, and run_yrs (how long the model is run for after burn in). 
+RSVempty@econ_par # Parameters associated with the economics of the model, time_horizon is currently set to 10 years, and discount rate is 3.5%
+RSVempty@post # Posterior distributions fitted to UK specific data
+
+```
+
+## Add economics
+
+With this empty class, we now add information on the economics of the model. This includes the health outcomes considered, the risk of each healthcome occuring per-infection, and the QALY loss and cost of each outcome.
+First, we define the risk of each health outcome per age group:
+
+```{r}
+
+# The risk of health outcome per infection can be difficult to to obtain from the literature. However, we can aggregate different burden estimates into
+# a spreadsheet and convert. For example, take the outcomes_incidence.csv included with the package, this has different
+# types of incidence estimates:
+
 outcomes_incidence <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcomes_incidence.csv"))
+
+# `outcomes_incidence` includes the incidence of each outcome per age group. This can be done by rates of incidence per 100,000 infected individuals
+# (`inc_inf` in the metric column), or rates of incidence per 100,000 individuals (inc in metric column), or absolute number of cases per year ('n' in the metric column).
+# The user can copy this excel spread sheet and change the incidences according to their beliefs.
+
+# To estimate the risk per infection of each outcome, we need to load the model-predicted number of cases and 
+# covert `inc` and `n` to `inc_inf`:
+
+# This loads the model-predicted incidence in each age group 
 model_cases_sample_mean_get <- load(file = system.file(package = "rsvie", "extdata", "model_cases_sample_mean.RData"))
 model_cases_sample_mean <- get(model_cases_sample_mean_get)
 
-# This function then converts the incidence of the outcome to the risk per infection
+# This function then converts `outcomes_incidence` to the risk per infection of each outcome
 risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
 
-# Can then add to the add_economics function
+# For Palivizumab risks we have a preloaded package from literature 
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
+
+```
+
+Now we need to load the QALY loss and cost for each outcome per age group. 
+
+```{r}
+
+# Similar to before we load an excel spreadsheet with all this information
+econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
+
+# For QALY we have the QALY loss per outcome per age group with the mean and confidence intervals if available
+# For cost we have the cost per outcome per age group with mean and confidence intevals if available. 
+# The user can copy this excel spread sheet and change the QALY loss and costs according to their beliefs .
+
+```
+
+Finally we take the estimated risks and economics and add these to the class
+
+```{r}
+
 RSVempty <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw, risks_raw, risks_vhr_raw)
+
+# We can check the slots to make sure these have been added properly
+RSVempty@risks_df 
+RSVempty@econ_df 
+RSVempty@outcomes_vec  # vector of outcomes considered
+
+# Note: to help with sampling times, the model fits a triangular distribution to each of the risk and economic outcomes and samples 1000 values. 
+# These values can be seen here
+RSVempty@samples_outcomes 
+
+# You can also make some plots by calling:
 plot_economics(RSVempty)
 plot_economics_fit(RSVempty)
 
 ```
 
 
+## Add intervention programmes
+
+With the economics and risks defined, we can now define an intervention programme. We have several vignettes showing how to evaluate various types of programmes which use different products. Here is a simple example:
+
 ```{r}
 
-df_eff_disease_mat <- data.frame(
-    product = "mat",
-    infection = 0.513,
-    symptomatic = 0.513,
-    gp = 0.513,
-    hosp = 0.694,
-    a_e = 0.694,
-    icu = 0.694,
-    death = 0.694
+# To evalaute a seasonal monoclonal given at birth we load an excel spreadsheet such as:
+cal_mabs_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mabs_s.csv")) 
+
+# In this spreadsheet you can define the start and enddate for each age group and the coverage. Note the year doesn't matter, but if you
+# wish to evaluate over a seasonal from Dec -> Jan the year must increase by 1
+# The uptake is defined as linear which means through the administration window it is given uniformly. This is appropiate for a product given at birth,
+# other options are available for different programes, e.g. older adults, where uptake is higher at the start of the season. See `*_lav` vignette. 
+
+```
+
+We must also define the immunological profile of the product we are evalauting. To do this, we define a list with two entries
+* `mass`,  defines the immunoligical profile for the mass administration product
+* `vhr`, defines the immunoligical profile for the palivizumab programme
+* `disease_eff`, if efficacy changes for different outcomes, the values can be given here and the outputs will be adjusted accordingly.
+  
+For `mass` and `vhr`, we define a list with the following options:
+
+* `product`, name of the product evaluated, this can be `mat` for maternal programme, `mab` for long-acting monoclonal antibodies, or `lav` for live active vaccine (older adults)
+* `wane function`, define as "a * exp(b * t)", currently this doesn't do anything, but in future iterations this will allow the user to define different options. The default assumption on waning is Erlang-3.
+* `a` is the proption of vaccinated infants which move to the protected group
+* `b` is the rate at which people lose immunity between each of the 3 vaccinated compartments 
+* `sero_delay` the delay between vaccination and acquiting immunity (instant for mabs)
+
+An example for mabs is given below:
+
+```{r}
+
+immune_profile_lav_unbound <- list(
+    mass = list(
+        product = "lav",
+        wane_function = "a * exp(b * t))",  a = oa_papi_nobound_wane$wane_a_er3, b =  1/oa_papi_nobound_wane$wane_b_er3,
+        sero_delay = "none"
+    ),
+    vhr = list(
+        product = "pal",
+        wane_function = "a * exp(b * t))", a = 0.7, b = 1 / 60,
+        sero_delay = "none"
+    ),
+    disease_eff = disease_eff_values,
+    direct = FALSE
 )
 
-# need to check waneing model correct
-df_eff_disease_nmab <- data.frame(
-    product = "mab",
-    infection = 0.795,
-    symptomatic = 0.795,
-    gp = 0.795,
-    hosp = 0.795,
-    a_e = 0.795,
-    icu = 0.795,
-    death = 0.795
-)
 
-# need to check waneing model correct
-df_eff_disease_papi <- data.frame(
-    product = "lav",
-    infection = 0.717,
-    symptomatic = 0.717,
-    gp = 0.717,
-    hosp = 0.826,
-    a_e = 0.826,
-    icu = 0.826,
-    death = 0.826
-)
+```
 
-disease_eff_values <- bind_rows(df_eff_disease_mat, df_eff_disease_nmab, df_eff_disease_papi)
-write_rds(disease_eff_values, here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
+How do we know `a` and `b` in the immunological definitions? We used a Bayesian model fit define in the package ``, with more details in the SI of the paper.
+We emphasise that the immune waning follows a Erlang-3 distribution, in future developments of this package we will add other options. For now we recommend using the default options for immune waning defined in the package.
+
+We can then add the immunological profile and intervention programme to the class, which has it's economics defined, by the function:
+
+```{r}
+
+RSV_mab_s <- add_programme(RSVempty, prog_name = "mab_s", cal_mabs_s, cal_vhr_s, immune_profile_mab)
+
+# RSV_mab_s a RSVPrograme class object
+# prog_name gives the programme a name
+
+```
+
+
+## Simulate the intervention programme
+
+To simulate a programme, we run:
+
+```{r}
+
+RSV_mab_s <- rsvie::run(RSV_mab_s)
+
+# RSV_mab_s still RSVPrograme class object, with all the outcomes ready for post-processing
 
 ```

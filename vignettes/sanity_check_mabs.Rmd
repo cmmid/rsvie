@@ -1,6 +1,6 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown showing how to simulate the package assuming Palivizumab and long-acting monoclonal antibody programme only.
 
-# Load the packages
+## Add economics, risks of the programme
 
 ```{r}
 
@@ -21,7 +21,8 @@ plot_economics_fit(RSVempty)
 ```
 
 
-# SANITY CHECK ON BASELINE DYNAMICS
+## Add the intervention programme
+
 ```{r}
 
 cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
@@ -72,7 +73,7 @@ RSV_mab_yr <- rsvie::run(RSV_mab_yr)
 
 ```
 
-## Check out the PALIVIZUMAB PROGRAMME FIRST
+## Some sanity checks to make sure everything is working
 
 ```{r}
 
@@ -81,12 +82,6 @@ RSV_mab_s_cu_states <- checkout_states(RSV_mab_s_cu)
 RSV_mab_yr_states <- checkout_states(RSV_mab_yr)
 
 ######### THINGS TO CHECK OUT ARE SANE IN STATES ###########
-# Compare dynamics between both implementations
-# Check dynamics of the VHR
-# 1.2. dynamics allocation in the groups
-## VHR has big difference sin incidence
-## LR is not perturbed
-
 
 RSV_mab_s_states %>% filter(risk_group == "LR", social_group == "n", state_name %in% c("E0", "E1", "E2", "E3")) %>%
     group_by(t, age_group, model_type) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 12) %>%

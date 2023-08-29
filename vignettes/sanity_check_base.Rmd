@@ -1,12 +1,14 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown showing how to simulate the package assuming no intervention programme.
+
+## Add economics, risks of the programme
 
 ```{r}
 
 # initialize the class
 devtools::load_all()
-RSVempty <- make_rsv_programme(S = 1)
+RSVempty <- make_rsv_programme(S = 1) # S is the number of monte carlo simualtions
 
-# Load the relevant csv files` 
+# Load the relevant csv files (these are given with the package but the user can make their own)
 econ_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars.csv")) 
 risks_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks.csv"))
 risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcome_risks_vhr.csv"))
@@ -17,23 +19,20 @@ plot_economics_fit(RSVempty)
 
 ```
 
+## Add the intervention programme
+
 ```{r}
-
-
-# SANITY CHECK ON BASELINE DYNAMICS
-
 
 # Load a calendar with no intervention 
 disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
 cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
 
+# No intervention programme so define immunological profile like this:
 immune_profile_none <- list(
     mass = list(product = "none"),
     vhr = list(product = "none"),
     disease_eff = disease_eff
 )
-
-#immune_profile_none$full_output <- TRUE
 
 RSV_none <- add_programme(RSVempty, prog_name = "none", cal_none, cal_none, immune_profile_none)
 RSV_none <- rsvie::run(RSV_none)
@@ -41,15 +40,15 @@ RSV_none <- rsvie::run(RSV_none)
 ```
 
 
-##
+## Here are a few snaity checks
 
 ```{r}
 
-none_test <- run_state(RSV_none)
+# run state outputs the state variable at each time step instead of the incidence (it's an enormous file hence why we chose S = 1)
+none_test <- rsvie::run_state(RSV_none)
 save(none_test,  file = here::here("inst", "extdata", "tests", "state_none_180423.RData") )
 
 df_states <- checkout_states(RSV_none)
-
 
 ######### THINGS TO CHECK OUT ARE SANE ###########
 # 1. Population sizes
@@ -91,7 +90,6 @@ inci_df %>% filter(incidence > 0) %>% group_by(age_group, t, risk_group) %>%
     ggplot() + 
         geom_line(aes(x = t, y = incidence, color = as.character(age_group))) + 
         facet_grid(vars(risk_group)) + theme_bw()
-
 
 
 ```

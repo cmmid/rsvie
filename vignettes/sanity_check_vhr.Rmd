@@ -1,6 +1,7 @@
-# Markdown explaining how to use the RSVimpact package
+# Markdown showing how to simulate the package assuming Palivizumab intervention programme only.
 
-# Load the packages
+## Add economics, risks of the programme
+
 ```{r}
 
 devtools::load_all()
@@ -19,8 +20,8 @@ plot_economics_fit(RSVempty)
 
 ```
 
+## Add the intervention programme
 
-# SANITY CHECK ON BASELINE DYNAMICS
 ```{r}
 
 # Load the relevant csv files
@@ -29,10 +30,9 @@ cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendar
 
 disease_eff <- read_rds( here::here("inst", "extdata", "efficacies", "disease_specific.rda"))
 
-# Add the economic information to the class
+# Add the immunological information
 efficacy_t <- load(file = system.file(package = "rsvie", "extdata", "efficacies", "nmab_unbound_post_wane.RData")) 
 efficacy <- get(efficacy_t)
-
 
 immune_profile_none <- list(
     mass = list(product = "none"),
@@ -103,7 +103,7 @@ df_states_vhr <- checkout_states(RSV_mab_vhr)
 # Compare dynamics between both implementations
 # Check dynamics of the VHR
 # 1.2. dynamics allocation in the groups
-## VHR has big difference sin incidence
+## VHR has big differences in incidence
 ## LR is not perturbed
 df_states_pal %>% filter(risk_group == "LR", social_group == "n", state_name == "I0") %>%
     group_by(t, age_group, model_type) %>% summarise(tot_age = sum(incidence)) %>% filter(age_group <= 6) %>%
@@ -141,26 +141,6 @@ inci_df_pal %>% filter(incidence > 0) %>% group_by(age_group, t, risk_group) %>%
 
 
 ```
-
-
-```{r}
-
-RSV_none <- run(RSV_none)
-RSV_pal <- run(RSV_pal)
-RSV_mab_vhr <- run(RSV_mab_vhr)
-
-obj_base <- RSV_none
-obj_inter <- list(RSV_pal, RSV_mab_vhr)
-
-compare_vhr <- compare_interventions(obj_base, obj_inter)
-
-library(ggdist)
-
-compare_vhr %>% filter(age_group <= 13) %>%
-    ggplot() + 
-        stat_pointinterval(aes(age_group, cases_VHR, color = type), position = position_dodge(0.5)) + 
-        facet_wrap(vars(outcome), scales = "free_y") + 
-        theme_bw()
 
 
 ```
