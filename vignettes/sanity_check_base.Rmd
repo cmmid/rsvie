@@ -4,7 +4,7 @@
 
 ```{r}
 
-# initialize the class
+# Initialize the class
 devtools::load_all()
 RSVempty <- make_rsv_programme(S = 1) # S is the number of monte carlo simualtions
 
