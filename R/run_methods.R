@@ -1,5 +1,5 @@
 #' @export
-convert_to_outcomes <- function(object) {
+convert_to_outcomes <- function(object, yrsum = 2) {
 
     # Get some data
     S <- object@S
@@ -127,7 +127,7 @@ convert_to_outcomes <- function(object) {
         by = "s")
 
     if(!object@full_output) {
-        outcomes_week_age <- outcomes_week_age %>% filter(week_no %in% (c(1:52) + 104))
+        outcomes_week_age <- outcomes_week_age %>% filter(week_no %in% (c(1:52) + yrsum * 52))
     }
 
     outcomes <- list(

@@ -26,6 +26,7 @@ RSVempty@model # This is the R interface to the cpp class defined in src/RunInte
 RSVempty@model_par # This gives the burn-in and run_yrs (how long the model is run for after bur-in). 
 RSVempty@econ_par # Parameters associated with the economics of the model, time_horizon is currently set to 10 years, and the discount rate is 3.5%
 RSVempty@post # Posterior distributions fitted to UK-specific data
+RSVempty@uk_data$populationAgeGroup # Posterior distributions fitted to UK-specific data
 
 ```
 

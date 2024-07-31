@@ -722,7 +722,8 @@ public:
     MatrixXd cal_mAB_VHR_step_out_dose, cal_mAB_VHR_step_in_dose, cal_mAB_HR_step_out_dose, cal_mAB_HR_step_in_dose, cal_mAB_LR_step_out_dose, cal_mAB_LR_step_in_dose;
 
     List vac_calendar, vac_info, vac_info_vhr, vac_dose;
-    double cov_c, eff_wane, eff_wane_lav, eff_wane_mat, eff_wane_vhr, eff_wane_mab, eff_wane_step, xi_boost;
+    double cov_c, eff_wane, eff_wane_lav, eff_wane_mat, eff_wane_vhr, eff_wane_mab, xi_boost;
+    int eff_wane_step;
     bool direct;
 
     double u18p;
@@ -829,11 +830,12 @@ public:
   
     
   
-  void operator() (  vector< double >  &x , vector< double >  &dxdt , const double  t, MatrixXd  &collect_protect )
+  void operator() (  vector< double >  &x , vector< double >  &dxdt , const double  ti, MatrixXd  &collect_protect )
     {
       /*/////////////*/
       /* CALENDARS /*/
       /*/////////////*/
+      int t = (int)ti;
       MatrixXd vac_cal_vhr; MatrixXd vac_cal;
       if (t < 2 * 365)
       {
@@ -962,7 +964,7 @@ public:
       
       //  2.2 Seasonal forcing
       //beta = (1 + b1*cos((t/365.0-phi)*2*PI));
-      double t1 = (int)t%365;
+      int t1 = (int)t%365;
       beta = (1 + b1*(1 + exp(-((t1/365.0 - phi))*((t1/365.0 - phi))/(2*psi*psi))));
 
       /*/////////////*/
@@ -1102,7 +1104,7 @@ public:
                   {   kp = 3*sg;       u = 0;             In = I_temp_p_v; mu = muBpv; mu_mat = 0; p_vul = p_vulpv; xi_b = xi_bpv;
                   }
                   else if (s == 4)
-                  {   kp = 4*sg;       u = 1;       In = I_temp_c_v; mu = muBcv*(1-vac_cal(t1,a)); mu_mat = muBcv*vac_cal(t1,a); p_vul = p_vulcv;  xi_b = xi_bcv;
+                  {   kp = 4*sg;       u = 1;       In = I_temp_c_v; mu = muBcv*(1-vac_cal(t1, a)); mu_mat = muBcv*vac_cal(t1, a); p_vul = p_vulcv;  xi_b = xi_bcv;
                   }
                   else
                   {   kp = 5*sg;       u = 1;     In = I_temp_n_v; mu = muBnv; mu_mat = 0; p_vul = p_vulnv;  xi_b = xi_bnv;
@@ -1491,7 +1493,7 @@ public:
                   dxdt[p+42] = lav_trans[3] - x[p+42]*eff_wane_lav - x[p+42]*ej1 + PS[42]*ej*u*rp; // LAV protection for exposure 4 (group 1, erlang-3 distributed)
                   dxdt[p+43] = x[p+42]*eff_wane_lav - x[p+43]*eff_wane_lav - x[p+43]*ej1 + PS[43]*ej*u*rp;  // Monoclonal protection for exposure 1 (group 2, erlang-3 distributed)
                   dxdt[p+44] = x[p+43]*eff_wane_lav - loss_lav_S3 - x[p+44]*ej1 + PS[44]*ej*u*rp; // LAV protection for exposure 4 (group 3, erlang-3 distributed)
-                }
+                } 
             }
           // Vaccine groups
           dxdt[a*ag + 6*sg + 0] = si*(x[cj+3*sg+0*rg+2] + x[cj+4*sg+0*rg+2] + x[cj+5*sg+0*rg+2] + x[cj+3*sg+1*rg+2] + x[cj+4*sg+1*rg+2] + x[cj+5*sg+1*rg+2] + x[cj+3*sg+2*rg+2] + x[cj+4*sg+2*rg+2] + x[cj+5*sg+2*rg+2]);
@@ -1610,7 +1612,8 @@ MatrixXd RunInterventions::StatesValues(List vac_calendar, List vac_dose, double
 
     while (this->currentODETime < (this->run_full + this->run_burn)){
         for (int j = 0; j < x0_N; j++){
-            xmat(this->currentODETime, j) = x0[j];
+            int currentODETime_idx = (int)this->currentODETime;
+            xmat(currentODETime_idx, j) = x0[j];
         }
         integrator(ODE_desc_inst, x0, this->currentODETime, this->dt, collect_protect);
 

@@ -218,7 +218,7 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
 )
 
 #' @export
-setGeneric("run", function(object, direct = FALSE, filename = NULL) {
+setGeneric("run", function(object, direct = FALSE, filename = NULL,  yr_num = 2) {
   standardGeneric("run")
 })
 
@@ -231,7 +231,7 @@ setGeneric("run", function(object, direct = FALSE, filename = NULL) {
 #' @export
 setMethod("run",  signature(object = "RSVProgramme"),
 
-    function(object, direct = FALSE, filename = NULL) {
+    function(object, direct = FALSE, filename = NULL, yr_num = 2) {
         cat("Running: Iterating through model simulations\n")
         future::plan(multisession, workers = 16)
         raw_inci <-
@@ -254,7 +254,7 @@ setMethod("run",  signature(object = "RSVProgramme"),
             )
         object@raw_inci <- raw_inci
         cat("Running: Calculating the outcomes\n")
-        object@outcomes <- convert_to_outcomes(object)
+        object@outcomes <- convert_to_outcomes(object, yr_num)
 
         if (!dir.exists(here::here("outputs", "extra", object@prog_name))) {
             # create the folder if it doesn't exist

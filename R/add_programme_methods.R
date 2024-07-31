@@ -45,6 +45,9 @@ calculate_daily_uptake <- function(object, cal_df) {
             } else if (cal_df$uptake[a] == "flu_oa") {
                 flu_like <- read.table(system.file(package = "rsvie", "extdata", "uptakes_uk", "flu_oa.csv") , sep = ",") %>% as.numeric
                 uptake <- get_daily_uptake(flu_like, StartPos)
+            } else if (cal_df$uptake[a] == "oa_2425") {
+                flu_like <- read.table(system.file(package = "rsvie", "extdata", "uptakes_uk", "oa_2425.csv") , sep = ",") %>% as.numeric
+                uptake <- get_daily_uptake(flu_like, StartPos)
             }
             if (length(uptake) == 1) {
                 if (StartPos < EndPos) {
