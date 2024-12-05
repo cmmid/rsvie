@@ -1,6 +1,23 @@
-## Add uncertainty to costs and qalys
+#' Add Fitted Distribution to Data Frame
+#'
+#' This function fits a specified distribution to the data in a given data frame and adds the fitted distribution as a new column.
+#'
+#' @param cost_df A data frame containing the data to which the distribution will be fitted. The data frame should have columns named "mean", "lb_95", and "ub_95".
+#' @param dist A character string specifying the distribution to fit. The distribution should be one of the distributions supported by the `q` function in R (e.g., "norm" for normal distribution, "tri" for triangular distribution).
+#'
+#' @return A data frame with an additional column named `fitt_dist` containing the fitted distribution for each row.
+#'
+#' @examples
+#' \dontrun{
+#' cost_df <- data.frame(mean = c(10, 20), lb_95 = c(5, 15), ub_95 = c(15, 25))
+#' add_fitted_dist(cost_df, "norm")
+#' }
+#' 
+#' @importFrom stats optim
+#' @importFrom purrr map_dbl
+#' @importFrom dplyr %>%
+#' @export
 add_fitted_dist <- function(cost_df, dist) {
-
     fitdist_ci <- function(pars, data, dist) {
         qs <- c(0.025, 0.5, 0.975); 1:3 %>% map_dbl(~ (dist(qs[.x], pars[1], pars[2]) - data[.x])^2) %>% sum
     }
@@ -25,33 +42,46 @@ add_fitted_dist <- function(cost_df, dist) {
     cost_df
 }
 
-#' @title Convert mean and ci into samples from a fitted distribution
+
+#' Generate and output samples for economic and risk data
 #'
-#' @description Convert mean and ci into samples from a fitted distribution.
-#' @param econ_raw a dataframe with the economic parameters per age group.
-#' @param risks_raw a dataframe with the risk of outcomes per age group.
+#' This function processes raw economic and risk data, fits distributions to the data, 
+#' generates samples, and outputs the results to a specified file.
 #'
-#' @import stringr
-#' @import dplyr
-#' @import ggplot2
-#' @import purrr
-#' @importFrom EnvStats rtri
+#' @param econ_raw A data frame containing raw economic data with columns for age group, outcome, reference QALYs, mean QALYs, lower bound QALYs, and upper bound QALYs.
+#' @param risks_raw A data frame containing raw risk data.
+#' @param file.name A string specifying the name of the output file.
+#'
+#' @return A list containing sampled outcomes for risks, QALYs, and costs.
+#' 
+#' @details
+#' The function performs the following steps:
+#' \itemize{
+#'   \item Fits triangular distributions to the risk, QALY, and cost data.
+#'   \item Generates samples for each outcome using the fitted distributions.
+#'   \item Outputs the sampled outcomes to the specified file.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' econ_raw <- read.csv("economic_data.csv")
+#' risks_raw <- read.csv("risk_data.csv")
+#' output_samples(econ_raw, risks_raw, "output_samples.csv")
+#' }
+#'
 #' @export
 output_samples <- function(econ_raw, risks_raw, file.name) {
 
+    require(EnvStats)
+
     risks_uncert <- add_fitted_dist(risks_raw, "tri")
     qalys_raw <- econ_raw %>% select(age_group, outcome, ref_qaly, mean_qaly, lb_95_qaly, ub_95_qaly) %>%
-        rename_with(~ str_remove(., "_qaly"))
+        rename_with(~ stringr::str_remove(., "_qaly"))
     costs_raw <- econ_raw %>% select(age_group, outcome, ref_costs, mean_costs, lb_95_costs, ub_95_costs) %>%
-        rename_with(~ str_remove(., "_costs"))
+        rename_with(~ stringr::str_remove(., "_costs"))
 
     costs_uncert <- add_fitted_dist(costs_raw, "tri")
     qalys_uncert <- add_fitted_dist(qalys_raw, "tri")
-
-    # inner workings
-   # write.csv(risks_uncert, file = here::here("data", "inner_workings", paste0("outcome_risks_", file.name,"_dist.csv")))
-   # write.csv(qalys_uncert, file = here::here("data", "inner_workings", "outcome_qalys_dist.csv"))
-   # write.csv(costs_uncert, file = here::here("data", "inner_workings", "outcome_costs_dist.csv"))
 
     run_samples_outcomes <- function(df_uncert, type = "risk") {
         outcomes <- df_uncert$outcome %>% unique
@@ -82,6 +112,24 @@ output_samples <- function(econ_raw, risks_raw, file.name) {
 
 }
 
+#' @title Plot Economics Data
+#' @description This function generates and saves plots for economic data, risks data, and very high-risk data from the given object.
+#' @param object An object containing economic data frames (`econ_df`, `risks_df`, `risks_vhr_df`) and an economic name (`econ_name`).
+#' @details The function performs the following steps:
+#' \itemize{
+#'   \item Checks if the directory for saving plots exists, and creates it if it does not.
+#'   \item Processes the economic data frame (`econ_df`) to create a combined data frame for QALY loss and Costs.
+#'   \item Generates and saves a plot for the economic data with uncertainty ribbons and lines.
+#'   \item Generates and saves a plot for the risks data with uncertainty ribbons and lines.
+#'   \item Generates and saves a plot for the very high-risk data with lines.
+#' }
+#' @import ggplot2
+#' @import dplyr
+#' @import here
+#' @importFrom magrittr %>%
+#' @importFrom ggplot2 ggplot geom_ribbon geom_line facet_grid scale_y_continuous labs theme_bw ggsave
+#' @importFrom dplyr bind_rows rename_with mutate filter
+#' @importFrom here here
 #' @export
 plot_economics <- function(object) {
     
@@ -98,7 +146,7 @@ plot_economics <- function(object) {
             mutate(econ_metric = "QALY loss"),
         object@econ_df[, c(1:2, 7:10)] %>%
             rename_with(~gsub("_costs$", "", .), c("ref_costs", "mean_costs", "lb_95_costs", "ub_95_costs")) %>%
-            mutate(econ_metric = "Costs (£)")
+            mutate(econ_metric = "Costs (GBP)")
     )
 
 
@@ -134,7 +182,39 @@ plot_economics <- function(object) {
 
 }
 
-#' @export
+
+
+#' @title Plot Economic Fit
+#' 
+#' @description This function generates and saves plots comparing fitted distributions to reference data for risks, QALYs, and costs across different age groups.
+#' 
+#' @param object An S4 object containing economic data and model outcomes.
+#' 
+#' @details The function performs the following steps:
+#' \itemize{
+#'   \item Checks if the directory for saving plots exists, and creates it if it doesn't.
+#'   \item Extracts unique age groups from the economic data.
+#'   \item Defines a helper function to extract mean and 95% uncertainty intervals for model outcomes.
+#'   \item Extracts fitted model outcomes for risks, QALYs, and costs.
+#'   \item Prepares data frames for risks, QALYs, and costs by merging reference data with fitted model outcomes.
+#'   \item Defines a helper function to convert data frames to long format for plotting.
+#'   \item Converts the prepared data frames to long format.
+#'   \item Generates and saves plots comparing fitted model outcomes to reference data for risks, QALYs, and costs.
+#' }
+#' 
+#' @return None. The function saves the generated plots to the specified directory.
+#' 
+#' @import dplyr
+#' @import ggplot2
+#' @import purrr
+#' @import here
+#' @importFrom stats quantile
+#' @importFrom dplyr bind_cols
+#' 
+#' @examples
+#' \dontrun{
+#'   plot_economics_fit(my_economic_model)
+#' }
 plot_economics_fit <- function(object) {
     
     if (!dir.exists(here::here("outputs", object@econ_name, "figs"))) {
@@ -209,6 +289,35 @@ plot_economics_fit <- function(object) {
 
 }
 
+
+#' Convert Raw Outcomes to Risk
+#'
+#' This function converts raw outcome data to risk metrics based on population data and model cases sample mean.
+#'
+#' @param object An object containing UK population data.
+#' @param outcomes_raw A data frame containing raw outcome data.
+#' @param model_cases_sample_mean A data frame containing model cases sample mean.
+#'
+#' @return A data frame with calculated risk metrics for each age group and outcome.
+#'
+#' @details
+#' The function performs the following steps:
+#' \itemize{
+#'   \item Extracts population and age group data from the input object.
+#'   \item Defines helper functions to check the completeness of data and calculate risk per infection.
+#'   \item Checks that each outcome has data for all age groups.
+#'   \item Combines raw outcomes data with model cases data and population data.
+#'   \item Calculates the risk per infection for each outcome and age group.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   result <- covert_raw_to_risk(object, outcomes_raw, model_cases_sample_mean)
+#'   print(result)
+#' }
+#' 
+#' @import dplyr
+#' @import tidyr
 #' @export
 covert_raw_to_risk <- function(object, outcomes_raw, model_cases_sample_mean) {
 

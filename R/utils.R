@@ -3,8 +3,17 @@
 #' @param object an RSVProgramme object
 #' @importFrom tidyr pivot_longer
 #' @return none
+#' @title Checkout Incidence
+#' @description This function processes the incidence data from an object.
+#' @param object An object containing the raw incidence data.
+#' @param rerun A logical value indicating whether to rerun the `rsvie::run` function on the object. Default is TRUE.
+#' @return A data frame containing the processed incidence data with additional columns for time, age group, social group, and risk group.
+#' @examples
+#' \dontrun{
+#'   result <- checkout_incidence(my_object)
+#' }
 #' @export
-checkout_incidence <- function(object, rerun = TRUE) {
+checkout_incidence <- function(object, rerun = FALSE) {
     if (rerun) {
         object <- rsvie::run(object)    
     }
@@ -19,12 +28,17 @@ checkout_incidence <- function(object, rerun = TRUE) {
     inci_df
 }
 
-#' @title function to conver the incidence matrix from a state run to a data.frame
-#' 
-#' @param object an RSVProgramme object
+
+#' @title Checkout States
+#' @description This function processes the states of a given object and returns a data table with detailed information about each state.
+#' @param object An object containing the states to be processed.
+#' @return A data table with columns for time, incidence, age group, risk group, social group, model type, and state name.
+#' @details The function generates a list of state names and categorizes them into risk groups, social groups, and model types. It then runs the state function on the input object and processes the resulting states into a data frame. The data frame is then transformed into a long format and additional columns are added to provide detailed information about each state.
+#' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
-#' @import data.table
-#' @return none
+#' @importFrom data.table as.data.table
+#' @importFrom purrr map
+#' @importFrom magrittr %>%
 #' @export
 checkout_states <- function(object) {
     inner <- c(
@@ -62,6 +76,19 @@ checkout_states <- function(object) {
     df_states %>% as.data.table
 }
 
+
+
+#' Compare Interventions
+#'
+#' This function compares the outcomes of a base intervention with multiple other interventions.
+#'
+#' @param obj_base An object containing the outcomes of the base intervention.
+#' @param obj_inter A list of objects, each containing the outcomes of different interventions to be compared with the base intervention.
+#'
+#' @return A data frame summarizing the total cases, cases in very high-risk (VHR) groups, and total cases for each age group and outcome, for both the base and other interventions.
+#'
+#' @import dplyr
+#' @import purrr
 #' @export
 compare_interventions <- function(obj_base, obj_inter) {
 

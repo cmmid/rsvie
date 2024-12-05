@@ -1,12 +1,19 @@
-
-
-#' @title Convert daily uptake from calendar to model
-#'
-#' @description Convert mean and ci into samples from a fitted distribution.
-#' @param object am S4 class of the defined RSV programme
-#' @param cal_df a dataframe of a calendar being evaluated
-#'
-#' @import lubridate
+#' @title Calculate Daily Uptake
+#' @description This function calculates the daily uptake for different age groups based on the provided calibration data frame.
+#' @param object An object containing the UK data with age group boundaries.
+#' @param cal_df A data frame containing the start and end dates, and uptake types for each age group.
+#' @return A matrix with 365 rows (days) and 25 columns (age groups) representing the daily uptake.
+#' @details The function processes each age group, calculates the start and end positions within the year, and fills the uptake matrix accordingly. 
+#' Different uptake types such as "linear", "birth_rate", "flu_oa", and "oa_2425" are handled.
+#' @examples
+#' \dontrun{
+#' object <- your_object_with_uk_data
+#' cal_df <- your_calibration_data_frame
+#' daily_uptake_matrix <- calculate_daily_uptake(object, cal_df)
+#' }
+#' @importFrom lubridate dmy ymd year yday
+#' @importFrom magrittr %>%
+#' @importFrom utils read.table
 #' @export
 calculate_daily_uptake <- function(object, cal_df) { 
 
@@ -66,13 +73,20 @@ calculate_daily_uptake <- function(object, cal_df) {
 }
 
 
-#' Function to convert a custom weekly uptake vector into a daily uptake calendar
-#'
-#' @param up_week_raw A vector of weekly uptake proportions
-#' @param start_time Start week when administration occurs
-#' @return A vector of the daily proportion of a target group which are vaccinated.
-get_daily_uptake <- function(up_week_raw, start_time)
-{
+#' @title Calculate Daily Uptake from Weekly Data
+#' @description This function calculates the daily uptake based on weekly uptake data.
+#' @param up_week_raw A numeric vector containing the weekly uptake data.
+#' @param start_time An integer representing the start time in days.
+#' @return A numeric vector of length 365 representing the daily uptake.
+#' @details The function first processes the weekly data to fill a weekly uptake vector, then calculates the daily uptake by interpolating the weekly data.
+#' @examples
+#' \dontrun{
+#' up_week_raw <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+#' start_time <- 1
+#' daily_uptake <- get_daily_uptake(up_week_raw, start_time)
+#' }
+#' @export
+get_daily_uptake <- function(up_week_raw, start_time) {
     up_week <- vector("numeric", length = 52)
     up_day <- vector("numeric", length = 365)
     for (k in (start_time):(start_time + 20)) { 
@@ -82,19 +96,39 @@ get_daily_uptake <- function(up_week_raw, start_time)
     }
             
     for (i in 1:365) {
-        pos_day <- (i - 1 + start_time) %% 365 + 1;
-        up_day[pos_day] <- (up_week[((i / 7 + start_time) %% 52) + 1] - up_week[((i / 7 - 1 + start_time) %% 52) + 1]) / 7.0;
+        pos_day <- (i - 1 + start_time) %% 365 + 1
+        up_day[pos_day] <- (up_week[((i / 7 + start_time) %% 52) + 1] - up_week[((i / 7 - 1 + start_time) %% 52) + 1]) / 7.0
         if (up_day[pos_day] < 0)
             up_day[pos_day] <- 0
     }
     up_day
 }
 
-#' @title function to plot the dosing calendar of the RSVprogramme]
-#' 
-#' @param object an RSVProgramme object
-#' @import dplyr
-#' @return none
+
+
+#' @title Plot Dosing Calendar
+#' @description This function generates and saves a plot of the dosing calendar for different age groups.
+#' @param object An object containing the dosing calendar and other relevant data.
+#' @details The function performs the following steps:
+#' \itemize{
+#'   \item Checks if the directory for saving the plot exists, and creates it if it does not.
+#'   \item Extracts unique age groups from the economic data frame within the object.
+#'   \item Updates the column names of the dose calendar matrices to match the age groups.
+#'   \item Converts the dose calendar matrices into a data frame suitable for plotting.
+#'   \item Generates a ggplot of the dosing calendar, with days of the year on the x-axis, age groups on the y-axis, and the proportion of doses as the fill color.
+#'   \item Saves the plot as a PNG file in the specified directory.
+#' }
+#' @importFrom here here
+#' @importFrom ggplot2 ggplot geom_tile facet_wrap scale_fill_gradient theme_bw theme labs ggsave
+#' @importFrom dplyr mutate
+#' @importFrom tidyr pivot_longer
+#' @importFrom purrr map map_df
+#' @importFrom magrittr %>%
+#' @return None
+#' @examples
+#' \dontrun{
+#' plot_calendar(my_object)
+#' }
 #' @export
 plot_calendar <- function(object) {
     if (!dir.exists(here::here("outputs", "extra", object@prog_name, "figs"))) {
@@ -123,6 +157,25 @@ plot_calendar <- function(object) {
 }
 
 
+
+#' Convert Matrices to Transmission Calendar
+#'
+#' This function converts dose and sero matrices into a transmission calendar based on the provided immune profile.
+#'
+#' @param all_dose A matrix representing all doses.
+#' @param all_sero A matrix representing all sero values.
+#' @param cal_vhr A calendar matrix for very high risk (VHR) individuals.
+#' @param daily_uptake_vhr A matrix representing daily uptake for VHR individuals.
+#' @param cal A calendar matrix for the general population.
+#' @param daily_uptake A matrix representing daily uptake for the general population.
+#' @param immune_profile A list containing immune profiles for VHR and general population.
+#' 
+#' @details
+#' The function first creates a VHR calendar if the immune profile for VHR is not "none". It then calculates the sero and dose models using the `get_sero_dose_cals` helper function. The results are stored in the `all_sero` and `all_dose` matrices.
+#' 
+#' The `get_sero_dose_cals` function calculates the dose and sero models based on the provided calendar, daily uptake, and immune profile. It considers different sero delays and coverage values.
+#' 
+#' @return A list containing updated `dose` and `sero` matrices.
 convert_mat_to_trans_cal <- function(all_dose, all_sero, cal_vhr, daily_uptake_vhr, cal, daily_uptake, immune_profile) { 
 
 
@@ -206,6 +259,37 @@ convert_mat_to_trans_cal <- function(all_dose, all_sero, cal_vhr, daily_uptake_v
     list(dose = all_dose, sero = all_sero)
 }
 
+
+
+#' Convert Immune Profile to Efficacies
+#'
+#' This function takes an immune profile and converts it into a list of efficacies for different products.
+#'
+#' @param immune_profile A list containing immune profile information. It should have the following structure:
+#' \describe{
+#'   \item{vhr}{A list with element \code{b} representing the efficacy for very high risk (VHR) individuals.}
+#'   \item{mass}{A list with elements \code{b} and \code{product} representing the efficacy and product type for mass immunization. The \code{product} can be "lav", "mab", or "mat".}
+#' }
+#'
+#' @return A list with the following elements:
+#' \describe{
+#'   \item{mab_vhr}{Efficacy for monoclonal antibodies (MAB) in very high risk individuals.}
+#'   \item{mab_mass}{Efficacy for monoclonal antibodies (MAB) in mass immunization.}
+#'   \item{lav_mass}{Efficacy for live attenuated vaccines (LAV) in mass immunization.}
+#'   \item{mat_mass}{Efficacy for maternal antibodies (MAT) in mass immunization.}
+#' }
+#'
+#' @details
+#' The function initializes the efficacy list with zeros. It then checks if the immune profile contains efficacy values for VHR and mass immunization and updates the efficacy list accordingly.
+#'
+#' @examples
+#' immune_profile <- list(
+#'   vhr = list(b = 0.8),
+#'   mass = list(b = 0.6, product = "lav")
+#' )
+#' convert_efficacies(immune_profile)
+#'
+#' @export
 convert_efficacies <- function(immune_profile) {
     # add info on waning rates here
     efficacy_list <- list(
@@ -230,6 +314,17 @@ convert_efficacies <- function(immune_profile) {
     efficacy_list
 }
 
+
+#' @title Get Coverage
+#' @description This function calculates the coverage based on the immune profile mass and calibration data.
+#' @param immune_profile_mass A data frame containing the immune profile mass information.
+#' @param cal A data frame containing the calibration data.
+#' @return The coverage value. If the product in the immune profile mass is "mat", it returns the mean of the positive coverage values from the calibration data. Otherwise, it returns 0.
+#' @examples
+#' immune_profile_mass <- data.frame(product = "mat")
+#' cal <- data.frame(cov = c(0.1, 0.2, 0, -0.1))
+#' get_coverage(immune_profile_mass, cal)
+#' @export
 get_coverage <- function(immune_profile_mass, cal) {
      if(immune_profile_mass$product == "mat") {
         cov <- mean(cal$cov[cal$cov > 0])

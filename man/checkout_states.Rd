@@ -2,16 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{checkout_states}
 \alias{checkout_states}
-\title{function to conver the incidence matrix from a state run to a data.frame}
+\title{Checkout States}
 \usage{
 checkout_states(object)
 }
 \arguments{
-\item{object}{an RSVProgramme object}
+\item{object}{An object containing the states to be processed.}
 }
 \value{
-none
+A data table with columns for time, incidence, age group, risk group, social group, model type, and state name.
 }
 \description{
-function to conver the incidence matrix from a state run to a data.frame
+This function processes the states of a given object and returns a data table with detailed information about each state.
+}
+\details{
+The function generates a list of state names and categorizes them into risk groups, social groups, and model types. It then runs the state function on the input object and processes the resulting states into a data frame. The data frame is then transformed into a long format and additional columns are added to provide detailed information about each state.
 }

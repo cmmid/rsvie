@@ -1,3 +1,25 @@
+#' @title Convert to Outcomes
+#' @description This function processes an object to calculate various health outcomes over time.
+#' @param object An object containing the necessary data for processing.
+#' @param yrsum An integer specifying the number of years to summarize. Default is 2.
+#' @return A list containing the following elements:
+#' \item{outcomes}{A data frame with weekly outcomes by age group.}
+#' \item{costs}{A data frame with discounted costs by outcome and age group.}
+#' \item{qaly}{A data frame with discounted quality-adjusted life years (QALYs) by outcome and age group.}
+#' \item{doses}{A vector containing the number of doses administered.}
+#' @details The function performs the following steps:
+#' \enumerate{
+#'   \item Extracts necessary data from the input object.
+#'   \item Calculates the proportion of individuals in different states over time.
+#'   \item Estimates the incidence of various health outcomes for vaccinated and unvaccinated groups.
+#'   \item Computes the protected incidence for different health outcomes.
+#'   \item Aggregates the results to provide weekly outcomes, costs, and QALYs by age group.
+#'   \item Applies discounting to costs and QALYs.
+#' }
+#' @examples
+#' \dontrun{
+#' result <- convert_to_outcomes(my_object, yrsum = 3)
+#' }
 #' @export
 convert_to_outcomes <- function(object, yrsum = 2) {
 
@@ -96,7 +118,9 @@ convert_to_outcomes <- function(object, yrsum = 2) {
 
     # Get the risk, incidence, costs and qalys
     outcome_per_sample <- list()
+    cat("S: ", S, "\n")
     for (s in 1:S) {
+        cat("HERE")
         outcome_per_sample[[s]] <- outcomes_vec %>%
         map_df( 
             function(x) {
@@ -117,6 +141,7 @@ convert_to_outcomes <- function(object, yrsum = 2) {
     } 
 
     outcomes_week_age <- outcome_per_sample %>% bind_rows 
+    cat(str(outcomes_week_age))
 
     dis_qaly_df <- outcomes_week_age %>% mutate(qaly = qaly * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(qaly = sum(qaly))
     dis_cost_df <- outcomes_week_age %>% mutate(cost = cost * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(cost = sum(cost))
@@ -139,6 +164,23 @@ convert_to_outcomes <- function(object, yrsum = 2) {
     outcomes
 }
 
+
+#' @title Plot Outcomes
+#' @description This function loads the run outputs from a specified file, extracts the outcomes data, and creates a boxplot of costs and QALY (Quality-Adjusted Life Year) outcomes. The plot is saved as a PNG file.
+#' @param object An S4 object that contains the program name and outcomes data.
+#' @return A ggplot object representing the boxplot of costs and QALY outcomes.
+#' @details The function performs the following steps:
+#' \itemize{
+#'   \item Loads the run outputs from a file located in the "outputs" directory.
+#'   \item Extracts the outcomes data from the loaded object.
+#'   \item Binds the costs and QALY data into a single data frame.
+#'   \item Creates a boxplot of the costs and QALY data using ggplot2.
+#'   \item Saves the plot as a PNG file in the "figs" subdirectory of the "outputs" directory.
+#' }
+#' @importFrom here here
+#' @importFrom ggplot2 ggplot geom_boxplot aes scale_y_continuous ggsave
+#' @importFrom dplyr bind_rows select mutate
+#' @importFrom magrittr %>%
 #' @export
 plot_outcomes <- function(object) {
     object_get <- load(file = here::here("outputs",
@@ -179,7 +221,19 @@ get_model_sample <- function(object, seed) {
     model_calendar_sample
 }
 
-#' @export
+
+#' @title Get Efficacies Sample
+#' @description This function retrieves a sample of efficacies from an object based on a provided seed.
+#' @param object An object containing efficacies in a list format.
+#' @param seed An integer representing the seed to select the sample from the efficacies.
+#' @return A list containing the sampled efficacies for each efficacy type.
+#' @details The function initializes a list with efficacy types set to 0. It then iterates over the names of the efficacy types and checks if the length of the efficacy values for each type is greater than 1. If so, it selects the efficacy value based on the provided seed. Otherwise, it assigns the single efficacy value to the list. The function finally returns the list of sampled efficacies.
+#' @examples
+#' \dontrun{
+#' object <- list(efficacies = list(mab_vhr = c(0.1, 0.2), mab_mass = 0.3, lav_mass = c(0.4, 0.5), mat_mass = 0.6))
+#' seed <- 1
+#' get_efficacies_sample(object, seed)
+#' }
 get_efficacies_sample <- function(object, seed) {
     efficacy_sample_list <- list(
         mab_vhr = 0,

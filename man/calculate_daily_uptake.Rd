@@ -2,15 +2,29 @@
 % Please edit documentation in R/add_programme_methods.R
 \name{calculate_daily_uptake}
 \alias{calculate_daily_uptake}
-\title{Convert daily uptake from calendar to model}
+\title{Calculate Daily Uptake}
 \usage{
 calculate_daily_uptake(object, cal_df)
 }
 \arguments{
-\item{object}{am S4 class of the defined RSV programme}
+\item{object}{An object containing the UK data with age group boundaries.}
 
-\item{cal_df}{a dataframe of a calendar being evaluated}
+\item{cal_df}{A data frame containing the start and end dates, and uptake types for each age group.}
+}
+\value{
+A matrix with 365 rows (days) and 25 columns (age groups) representing the daily uptake.
 }
 \description{
-Convert mean and ci into samples from a fitted distribution.
+This function calculates the daily uptake for different age groups based on the provided calibration data frame.
+}
+\details{
+The function processes each age group, calculates the start and end positions within the year, and fills the uptake matrix accordingly.
+Different uptake types such as "linear", "birth_rate", "flu_oa", and "oa_2425" are handled.
+}
+\examples{
+\dontrun{
+object <- your_object_with_uk_data
+cal_df <- your_calibration_data_frame
+daily_uptake_matrix <- calculate_daily_uptake(object, cal_df)
+}
 }

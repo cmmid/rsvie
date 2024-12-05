@@ -2,16 +2,32 @@
 % Please edit documentation in R/add_programme_methods.R
 \name{plot_calendar}
 \alias{plot_calendar}
-\title{function to plot the dosing calendar of the RSVprogramme]}
+\title{Plot Dosing Calendar}
 \usage{
 plot_calendar(object)
 }
 \arguments{
-\item{object}{an RSVProgramme object}
+\item{object}{An object containing the dosing calendar and other relevant data.}
 }
 \value{
-none
+None
 }
 \description{
-function to plot the dosing calendar of the RSVprogramme]
+This function generates and saves a plot of the dosing calendar for different age groups.
+}
+\details{
+The function performs the following steps:
+\itemize{
+\item Checks if the directory for saving the plot exists, and creates it if it does not.
+\item Extracts unique age groups from the economic data frame within the object.
+\item Updates the column names of the dose calendar matrices to match the age groups.
+\item Converts the dose calendar matrices into a data frame suitable for plotting.
+\item Generates a ggplot of the dosing calendar, with days of the year on the x-axis, age groups on the y-axis, and the proportion of doses as the fill color.
+\item Saves the plot as a PNG file in the specified directory.
+}
+}
+\examples{
+\dontrun{
+plot_calendar(my_object)
+}
 }
