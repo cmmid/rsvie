@@ -70,10 +70,10 @@
 15-24yr,inc,death,Fleming2015,0,0,1
 25-34yr,inc,death,Fleming2015,0,0,1
 35-44yr,inc,death,Fleming2015,0,0,1
-45-55yr,inc,death,Fleming2015,1.83,1.342,2.196
-55-64yr,inc,death,Fleming2015,1.83,1.342,2.196
-65-74yr,inc,death,Fleming2015,4.331,3.172,5.49
-75yr,inc,death,Fleming2015,15.311,11.346,19.276
+45-55yr,inc,death,Fleming2015,6,5,7
+55-64yr,inc,death,Fleming2015,6,5,7
+65-74yr,inc,death,Fleming2015,29,21,33
+75yr,inc,death,Fleming2015,155,108,213
 <1mo,n,hosp,Reeves2019,1772,1712,1913
 1mo,n,hosp,Reeves2019,4174,3995,4312
 2mo,n,hosp,Reeves2019,3184,3073,3371

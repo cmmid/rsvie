@@ -107,3 +107,59 @@ compare_interventions <- function(obj_base, obj_inter) {
     base_compare <- base_sum %>% bind_rows(base_sum1)
     base_compare
 }
+
+
+
+#' Summarise Outcomes
+#'
+#' This function takes an object `x` and summarises the outcomes by grouping 
+#' by `s`, `outcome`, and `age_group`, then calculates the total number of cases.
+#'
+#' @param x An object containing the outcomes data.
+#' @return A data frame with the total number of cases grouped by `s`, `outcome`, and `age_group`.
+#' @import dplyr
+#' @export
+#' @examples
+#' # Assuming `data` is an object with the appropriate structure
+#' summarise_outcomes(data)
+summarise_outcomes <- function(x) {
+    x@outcomes$outcomes %>% group_by(s, outcome, age_group) %>% summarise(cases_total = sum(cases) )
+}
+
+
+#' @title Calculate Averted Cases Data Frame
+#' @description This function calculates the number of averted cases for different interventions compared to a base scenario.
+#' @param base A data frame containing the base scenario data with columns `s`, `outcome`, `age_group`, and `cases_total`.
+#' @param interventions A data frame containing the intervention scenario data with columns `s`, `outcome`, `age_group`, and `cases_total`.
+#' @return A data frame with the calculated averted cases and proportions, with recoded age groups and outcomes.
+#' @details The function performs the following steps:
+#' \itemize{
+#'   \item Joins the base and intervention data frames on `s`, `outcome`, and `age_group`.
+#'   \item Calculates the total number of cases averted and the proportion of cases averted.
+#'   \item Recodes the age groups and outcomes to more descriptive labels.
+#'   \item Converts the recoded age groups and outcomes to factors with specific levels.
+#' }
+#' @examples
+#' \dontrun{
+#' base <- data.frame(s = 1:5, outcome = rep("symptomatic", 5), age_group = 1:5, cases_total = c(100, 200, 150, 120, 130))
+#' interventions <- data.frame(s = 1:5, outcome = rep("symptomatic", 5), age_group = 1:5, cases_total = c(90, 180, 140, 110, 120))
+#' get_averted_df(base, interventions)
+#' }
+#' @import dplyr
+#' @export
+get_averted_df <- function(base, interventions) {
+    recode_age <- c("1" = "<1 month", "2" = "1 month", "3" = "2 month", "4" = "3 month", "5" = "4 month",
+    "6" = "5 month", "7" = "6 month", "8" = "7 month", "9" = "8 month", "10" = "9 month", "11" = "10 month",
+    "12" = "11 month", "13" = "1 year", "14" = "2 year", "15" = "3 years", "16" = "4 years", 
+    "17" = "5+ years", "18" = "5+ years", "19" = "5+ years", "20" = "5+ years", "21" = "5+ years",
+    "22" = "5+ years", "23" = "5+ years", "24" = "5+ years", "25" = "5+ years")
+    relabel_outcomes <- c("symptomatic" = "Symptomatic cases", "gp" = "GP consultations", 
+        "hosp" = "Hospital cases", "icu" = "ICU admissions", "a_e" = "A+E visits", "death" = "Deaths")
+    RSV_impact <- interventions %>%
+        left_join(base %>% rename(case_total_base = cases_total), by = c("s", "outcome", "age_group")) %>%
+        mutate(total_case_averted = case_total_base - cases_total) %>% mutate(prop_cases_averted = (case_total_base - cases_total) / case_total_base)  %>% mutate(age_group = recode(age_group, !!!recode_age)) %>%
+        mutate(age_group = factor(age_group, levels = unique(recode_age))) %>%
+        mutate(outcome = recode(outcome, !!!relabel_outcomes)) %>%
+        mutate(outcome = factor(outcome, levels = unique(relabel_outcomes)))
+    RSV_impact
+}
