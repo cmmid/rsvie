@@ -119,9 +119,6 @@ compare_interventions <- function(obj_base, obj_inter) {
 #' @return A data frame with the total number of cases grouped by `s`, `outcome`, and `age_group`.
 #' @import dplyr
 #' @export
-#' @examples
-#' # Assuming `data` is an object with the appropriate structure
-#' summarise_outcomes(data)
 summarise_outcomes <- function(x) {
     x@outcomes$outcomes %>% group_by(s, outcome, age_group) %>% summarise(cases_total = sum(cases) )
 }
@@ -151,8 +148,8 @@ get_averted_df <- function(base, interventions) {
     recode_age <- c("1" = "<1 month", "2" = "1 month", "3" = "2 month", "4" = "3 month", "5" = "4 month",
     "6" = "5 month", "7" = "6 month", "8" = "7 month", "9" = "8 month", "10" = "9 month", "11" = "10 month",
     "12" = "11 month", "13" = "1 year", "14" = "2 year", "15" = "3 years", "16" = "4 years", 
-    "17" = "5+ years", "18" = "5+ years", "19" = "5+ years", "20" = "5+ years", "21" = "5+ years",
-    "22" = "5+ years", "23" = "5+ years", "24" = "5+ years", "25" = "5+ years")
+    "17" = "5-9 years", "18" = "10-14 years", "19" = "15-24 years", "20" = "25-34 years", "21" = "35-44 years",
+    "22" = "45-54 years", "23" = "55-64 years", "24" = "65-74 years", "25" = "75+ years")
     relabel_outcomes <- c("symptomatic" = "Symptomatic cases", "gp" = "GP consultations", 
         "hosp" = "Hospital cases", "icu" = "ICU admissions", "a_e" = "A+E visits", "death" = "Deaths")
     RSV_impact <- interventions %>%

@@ -1,10 +1,10 @@
 ---
-title: "Using the RSV Impact Evaluation `rsvie` Package (A)"
-author: "Your Name"
+title: "Evaluating RSV monoclonal antibody programmes"
+author: "David Hodgson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using the RSV Impact Evaluation `rsvie` Package (A)}
+  %\VignetteIndexEntry{Evaluating RSV monoclonal antibody programmes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ This vignette explains how to use the `rsvie` package to evaluate the impact of 
 # Load the package (or library(rsvie))
 devtools::load_all()
 
-# This defines an RSVProgramme class
+# This defines an RSVPrograpkmme class
 RSVempty <- make_rsv_programme(1)
 
 # To see what is in these slots 
@@ -75,7 +75,7 @@ immune_profile <- readRDS(file = system.file(package = "rsvie", "extdata", "effi
 ```
 
 
-## 5. Add intervention programmes
+## 4. Add intervention programmes
 
 With the economics and risks defined, we can now define an intervention programme. We have several vignettes showing how to evaluate various types of programmes that use different products. Here is a simple example:
 
@@ -86,15 +86,15 @@ cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars
 cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
 cal_mabs_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mabs_s.csv")) 
 
-RSV_mab_vhr <- add_programme(RSVempty, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mabs)
-RSV_mab_s <- add_programme(RSVempty, prog_name = "mab_s", cal_mabs_s, cal_vhr_s, immune_profile$mabs)
+RSV_mab_vhr <- add_programme(RSVempty_ss, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mabs_vhr)
+RSV_mab_s <- add_programme(RSVempty_ss, prog_name = "mab_s", cal_mabs_s, cal_vhr_s, immune_profile$mabs)
 
 
 ```
 
 
 
-## 7. Simulate the intervention programme
+## 5. Simulate the intervention programme
 
 To simulate a programme, we call `rsvie::run` on the class defined above. This will simulate the programme and return a class with the results.
 
@@ -107,12 +107,11 @@ RSV_mab_s <- rsvie::run(RSV_mab_s)
 
 ```
 
-## 8. Extract incidence for further exploration 
+## 6. Extract incidence for further exploration 
 
 ```{r post-process, echo=FALSE, results='hide'}
 
 # Look at full posterior outcomes
-RSV_mab_s@outcomes$outcomes 
 
 # summari outcomes annually
 RSV_mab_vhr_sum <- summarise_outcomes(RSV_mab_vhr)

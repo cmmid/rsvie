@@ -1,10 +1,10 @@
 ---
-title: "Using the RSV Impact Evaluation `rsvie` Package (A)"
-author: "Your Name"
+title: "Evaluating RSV maternal vaccination programmes"
+author: "David Hodgson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using the RSV Impact Evaluation `rsvie` Package (A)}
+  %\VignetteIndexEntry{Evaluating RSV maternal vaccination programmes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -86,8 +86,8 @@ cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars
 cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
 cal_mat_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_s.csv")) 
 
-RSV_mat_vhr <- add_programme(RSVempty, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mat_vhr)
-RSV_mat_s <- add_programme(RSVempty, prog_name = "mab_s", cal_lav_65, cal_vhr_s, immune_profile$mat)
+RSV_mat_vhr <- add_programme(RSVempty_ss, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mat_vhr)
+RSV_mat_s <- add_programme(RSVempty_ss, prog_name = "mat_s", cal_mat_s, cal_vhr_s, immune_profile$mat)
 
 
 ```
@@ -116,7 +116,7 @@ RSV_mat_s@outcomes$outcomes
 
 # summari outcomes annually
 RSV_mat_vhr_sum <- summarise_outcomes(RSV_mat_vhr)
-RSV_mat_s_sum <- summarise_outcomes(RSV_mab_t)
+RSV_mat_s_sum <- summarise_outcomes(RSV_mat_s)
 
 get_averted_df(RSV_mat_vhr_sum, RSV_mat_s_sum)
 

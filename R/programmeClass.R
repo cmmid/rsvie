@@ -305,7 +305,7 @@ setMethod("run",  signature(object = "RSVProgramme"),
 
     function(object, direct = FALSE, filename = NULL, yr_num = 2) {
         cat("Running: Iterating through model simulations\n")
-        future::plan(multisession, workers = 16)
+       # future::plan(multisession, workers = 1)
         raw_inci <-
             map(seq_len(object@S),
                 function(x) {

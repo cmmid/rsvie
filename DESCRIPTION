@@ -34,6 +34,8 @@ Imports:
     readr,
     stringr
 Suggests:
+    knitr,
+    rmarkdown,
     usethis,
     roxygen2,
     devtools,
@@ -42,4 +44,5 @@ LinkingTo:
     Rcpp,
     RcppEigen,
     BH
+VignetteBuilder: knitr
 Config/testthat/edition: 3

@@ -1,10 +1,10 @@
 ---
-title: "Using the RSV Impact Evaluation `rsvie` Package (A)"
-author: "Your Name"
+title: "Evaluating RSV older adult vaccination programmes"
+author: "David Hodgson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using the RSV Impact Evaluation `rsvie` Package (A)}
+  %\VignetteIndexEntry{Evaluating RSV older adult vaccination programmes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -81,12 +81,13 @@ With the economics and risks defined, we can now define an intervention programm
 ```{r calendars, echo=FALSE, results='hide'}
 
 # To evaluate a seasonal monoclonal given at birth, we load an Excel spreadsheet such as:
-cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_mat_none.csv")) 
+cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
 cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
-cal_lav_65 <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_lav_65.csv")) 
+cal_lav_65 <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_lav_oa_65.csv")) 
 
-RSV_65_vhr <- add_programme(RSVempty, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mat_vhr)
-RSV_65_s <- add_programme(RSVempty, prog_name = "mab_s", cal_lav_65, cal_vhr_s, immune_profile$lav)
+# Add programmes to the empty class
+RSV_65_vhr <- add_programme(RSVempty_ss, prog_name = "pal", cal_none, cal_vhr_s, immune_profile$mabs_vhr)
+RSV_65_s <- add_programme(RSVempty_ss, prog_name = "mab_s", cal_lav_65, cal_vhr_s, immune_profile$lav)
 
 
 ```
@@ -98,9 +99,10 @@ To simulate a programme, we call `rsvie::run` on the class defined above. This w
 
 ```{r run, echo=FALSE, results='hide'}
 
-# base vase
+# Base-base
 RSV_65_vhr <- rsvie::run(RSV_65_vhr)
-# seasonal
+
+# Seasonal
 RSV_65_s <- rsvie::run(RSV_65_s)
 
 ```

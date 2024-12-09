@@ -118,12 +118,12 @@ convert_to_outcomes <- function(object, yrsum = 2) {
 
     # Get the risk, incidence, costs and qalys
     outcome_per_sample <- list()
-    cat("S: ", S, "\n")
+   # cat("S: ", S, "\n")
     for (s in 1:S) {
-        cat("HERE")
         outcome_per_sample[[s]] <- outcomes_vec %>%
         map_df( 
             function(x) {
+
                 inci_risk_hc <- t(LR_inci[[s]] * (1 - LR_prot[[x]])) 
                 inci_risk_hc_vhr <- t(VHR_inci[[s]] * (1 - VHR_prot[[x]])) 
 
@@ -140,8 +140,9 @@ convert_to_outcomes <- function(object, yrsum = 2) {
         )
     } 
 
+
+
     outcomes_week_age <- outcome_per_sample %>% bind_rows 
-    cat(str(outcomes_week_age))
 
     dis_qaly_df <- outcomes_week_age %>% mutate(qaly = qaly * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(qaly = sum(qaly))
     dis_cost_df <- outcomes_week_age %>% mutate(cost = cost * exp(-(week_no * discount_rate / 52.0))) %>% group_by(outcome, age_group, s) %>% summarise(cost = sum(cost))

@@ -4,7 +4,7 @@
 \alias{checkout_incidence}
 \title{function to conver the incidence matrix from a run to a data.frame}
 \usage{
-checkout_incidence(object, rerun = TRUE)
+checkout_incidence(object, rerun = FALSE)
 }
 \arguments{
 \item{object}{An object containing the raw incidence data.}
