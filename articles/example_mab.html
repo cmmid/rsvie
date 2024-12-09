@@ -91,727 +91,38 @@ Hodgson</h4>
 <h2 id="markdown-explaining-how-to-use-the-rsv-impact-evaluation-rsvie-package">Markdown explaining how to use the RSV impact evaluation
 <code>rsvie</code> package<a class="anchor" aria-label="anchor" href="#markdown-explaining-how-to-use-the-rsv-impact-evaluation-rsvie-package"></a>
 </h2>
-<p>## 1. Load package and functions This vignette explains how to use
-the <code>rsvie</code> package to evaluate the impact of different RSV
-intervention programmes. The package is designed to be flexible and
-allow the user to define different intervention programmes, with
-different immunological profiles, and evaluate their impact on RSV
-outcomes.</p>
+<div class="section level3">
+<h3 id="load-package-and-functions">1. Load package and functions<a class="anchor" aria-label="anchor" href="#load-package-and-functions"></a>
+</h3>
+<p>This vignette explains how to use the <code>rsvie</code> package to
+evaluate the impact of different RSV intervention programmes. The
+package is designed to be flexible and allow the user to define
+different intervention programmes, with different immunological
+profiles, and evaluate their impact on RSV outcomes.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the package (or library(rsvie))</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Loading <span style="color: #0000BB;">rsvie</span></span></span></code></pre>
-<pre><code><span><span class="co">## Exports from /home/runner/work/rsvie/rsvie/src/RunInterventions.cpp:</span></span>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Loading <span style="color: #0000BB;">rsvie</span></span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Re-compiling <span style="color: #0000BB;">rsvie</span> (debug build)</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Exports from /home/runner/work/rsvie/rsvie/src/RunInterventions.h:</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## /home/runner/work/rsvie/rsvie/src/RcppExports.cpp updated.</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Re-compiling <span style="color: #0000BB;">rsvie</span> (debug build)</span></span></code></pre>
-<pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD INSTALL</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────</span></span></span>
-<span><span class="co">## * installing *source* package ‘rsvie’ ...</span></span>
-<span><span class="co">## ** using staged installation</span></span>
-<span><span class="co">## ** libs</span></span>
-<span><span class="co">## using C++ compiler: ‘g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span></span>
-<span><span class="co">## g++ -std=gnu++17 -I"/opt/R/4.4.2/lib/R/include" -DNDEBUG  -I'/home/runner/work/_temp/Library/Rcpp/include' -I'/home/runner/work/_temp/Library/RcppEigen/include' -I'/home/runner/work/_temp/Library/BH/include' -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -fdiagnostics-color=always  -c RcppExports.cpp -o RcppExports.o</span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:205</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:46:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    46 | typedef eigen_packet_wrapper&lt;__m128i, 0<span style="color: #BB00BB; font-weight: bold;">&gt;</span> Packet4i;</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:47:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    47 | typedef eigen_packet_wrapper&lt;__m128i, 1<span style="color: #BB00BB; font-weight: bold;">&gt;</span> Packet16b;</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:49:39:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    49 | template&lt;&gt; struct is_arithmetic&lt;__m128<span style="color: #BB00BB; font-weight: bold;">&gt;</span>  { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:50:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    50 | template&lt;&gt; struct is_arithmetic&lt;__m128i<span style="color: #BB00BB; font-weight: bold;">&gt;</span> { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:51:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128d</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    51 | template&lt;&gt; struct is_arithmetic&lt;__m128d<span style="color: #BB00BB; font-weight: bold;">&gt;</span> { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:222:43:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   222 | template&lt;&gt; struct unpacket_traits&lt;Packet4f<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {</span></span>
-<span><span class="co">##       |                                           <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:228:43:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   228 | template&lt;&gt; struct unpacket_traits&lt;Packet2d<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {</span></span>
-<span><span class="co">##       |                                           <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:1124:34:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##  1124 | ptranspose(PacketBlock&lt;Packet4f,4<span style="color: #BB00BB; font-weight: bold;">&gt;</span>&amp; kernel) {</span></span>
-<span><span class="co">##       |                                  <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:1129:34:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##  1129 | ptranspose(PacketBlock&lt;Packet2d,2<span style="color: #BB00BB; font-weight: bold;">&gt;</span>&amp; kernel) {</span></span>
-<span><span class="co">##       |                                  <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:174</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:16:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    16 |   struct conj_helper&lt;PACKET_REAL, PACKET_CPLX, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:173:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   173 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet2cf,Packet4f)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:29:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    29 |   struct conj_helper&lt;PACKET_CPLX, PACKET_REAL, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:173:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   173 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet2cf,Packet4f)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:16:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    16 |   struct conj_helper&lt;PACKET_REAL, PACKET_CPLX, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:298:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   298 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet1cd,Packet2d)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:29:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    29 |   struct conj_helper&lt;PACKET_CPLX, PACKET_REAL, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:298:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   298 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet1cd,Packet2d)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:165</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h: In instantiation of ‘<span style="font-weight: bold;">struct Eigen::internal::find_best_packet&lt;float, 4&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:22:57:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:266:49:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Quaternion&lt;float&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:24:46:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:44:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = Size==Dynamic || <span style="color: #BB00BB; font-weight: bold;">(Size%unpacket_traits&lt;PacketType&gt;::size)</span>==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value&gt;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = <span style="color: #BB00BB; font-weight: bold;">Size==Dynamic || (Size%unpacket_traits&lt;PacketType&gt;::size)==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value</span>&gt;</span></span>
-<span><span class="co">##       |                      <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::unpacket_traits&lt;__vector(4) float&gt;::half</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:208:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   208 |   typedef typename find_best_packet_helper&lt;Size,typename packet_traits&lt;T&gt;::type&gt;::type <span style="color: #BB00BB; font-weight: bold;">type</span>;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;float, 4, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:46:50:</span>   required from ‘<span style="font-weight: bold;">class Eigen::QuaternionBase&lt;Eigen::Quaternion&lt;float&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:273:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Quaternion&lt;float&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:27:3:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:165</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h: In instantiation of ‘<span style="font-weight: bold;">struct Eigen::internal::find_best_packet&lt;double, 4&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:22:57:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:266:49:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Quaternion&lt;double&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:98:47:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:44:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = Size==Dynamic || <span style="color: #BB00BB; font-weight: bold;">(Size%unpacket_traits&lt;PacketType&gt;::size)</span>==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value&gt;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = <span style="color: #BB00BB; font-weight: bold;">Size==Dynamic || (Size%unpacket_traits&lt;PacketType&gt;::size)==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value</span>&gt;</span></span>
-<span><span class="co">##       |                      <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::unpacket_traits&lt;__vector(2) double&gt;::half</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:208:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   208 |   typedef typename find_best_packet_helper&lt;Size,typename packet_traits&lt;T&gt;::type&gt;::type <span style="color: #BB00BB; font-weight: bold;">type</span>;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;double, 4, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:46:50:</span>   required from ‘<span style="font-weight: bold;">class Eigen::QuaternionBase&lt;Eigen::Quaternion&lt;double&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:273:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Quaternion&lt;double&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:102:3:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/SparseCore:37</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Sparse:26</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:29</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RcppExports.cpp:4</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrixBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::SparseMatrixBase&lt;Eigen::SparseMatrix&lt;double, 0, int&gt; &gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseCompressedBase.h:36:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::SparseCompressedBase&lt;Eigen::SparseMatrix&lt;double, 0, int&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrix.h:96:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::SparseMatrix&lt;double, 0, int&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/unsupported/Eigen/src/IterativeSolvers/ConstrainedConjGrad.h:61:25:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrixBase.h:47:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    47 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## g++ -std=gnu++17 -I"/opt/R/4.4.2/lib/R/include" -DNDEBUG  -I'/home/runner/work/_temp/Library/Rcpp/include' -I'/home/runner/work/_temp/Library/RcppEigen/include' -I'/home/runner/work/_temp/Library/BH/include' -I/usr/local/include    -fpic  -g -O2  -UNDEBUG -Wall -pedantic -g -O0 -fdiagnostics-color=always  -c RunInterventions.cpp -o RunInterventions.o</span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:205</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:46:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    46 | typedef eigen_packet_wrapper&lt;__m128i, 0<span style="color: #BB00BB; font-weight: bold;">&gt;</span> Packet4i;</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:47:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    47 | typedef eigen_packet_wrapper&lt;__m128i, 1<span style="color: #BB00BB; font-weight: bold;">&gt;</span> Packet16b;</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:49:39:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    49 | template&lt;&gt; struct is_arithmetic&lt;__m128<span style="color: #BB00BB; font-weight: bold;">&gt;</span>  { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:50:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    50 | template&lt;&gt; struct is_arithmetic&lt;__m128i<span style="color: #BB00BB; font-weight: bold;">&gt;</span> { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:51:40:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">__m128d</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    51 | template&lt;&gt; struct is_arithmetic&lt;__m128d<span style="color: #BB00BB; font-weight: bold;">&gt;</span> { enum { value = true }; };</span></span>
-<span><span class="co">##       |                                        <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:222:43:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   222 | template&lt;&gt; struct unpacket_traits&lt;Packet4f<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {</span></span>
-<span><span class="co">##       |                                           <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:228:43:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   228 | template&lt;&gt; struct unpacket_traits&lt;Packet2d<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {</span></span>
-<span><span class="co">##       |                                           <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:1124:34:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##  1124 | ptranspose(PacketBlock&lt;Packet4f,4<span style="color: #BB00BB; font-weight: bold;">&gt;</span>&amp; kernel) {</span></span>
-<span><span class="co">##       |                                  <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/PacketMath.h:1129:34:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##  1129 | ptranspose(PacketBlock&lt;Packet2d,2<span style="color: #BB00BB; font-weight: bold;">&gt;</span>&amp; kernel) {</span></span>
-<span><span class="co">##       |                                  <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:174</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:16:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    16 |   struct conj_helper&lt;PACKET_REAL, PACKET_CPLX, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:173:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   173 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet2cf,Packet4f)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:29:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet4f</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    29 |   struct conj_helper&lt;PACKET_CPLX, PACKET_REAL, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:173:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   173 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet2cf,Packet4f)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:16:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    16 |   struct conj_helper&lt;PACKET_REAL, PACKET_CPLX, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:298:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   298 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet1cd,Packet2d)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/Default/ConjHelper.h:29:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::Packet2d</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    29 |   struct conj_helper&lt;PACKET_CPLX, PACKET_REAL, false, false<span style="color: #BB00BB; font-weight: bold;">&gt;</span> {          \</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/arch/SSE/Complex.h:298:1:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>in expansion of macro ‘<span style="font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>’</span></span>
-<span><span class="co">##   298 | <span style="color: #00BBBB; font-weight: bold;">EIGEN_MAKE_CONJ_HELPER_CPLX_REAL</span>(Packet1cd,Packet2d)</span></span>
-<span><span class="co">##       | <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:165</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h: In instantiation of ‘<span style="font-weight: bold;">struct Eigen::internal::find_best_packet&lt;float, 4&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:22:57:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:266:49:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Quaternion&lt;float&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:24:46:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:44:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = Size==Dynamic || <span style="color: #BB00BB; font-weight: bold;">(Size%unpacket_traits&lt;PacketType&gt;::size)</span>==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value&gt;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = <span style="color: #BB00BB; font-weight: bold;">Size==Dynamic || (Size%unpacket_traits&lt;PacketType&gt;::size)==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value</span>&gt;</span></span>
-<span><span class="co">##       |                      <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::unpacket_traits&lt;__vector(4) float&gt;::half</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:208:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   208 |   typedef typename find_best_packet_helper&lt;Size,typename packet_traits&lt;T&gt;::type&gt;::type <span style="color: #BB00BB; font-weight: bold;">type</span>;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;float, 4, 1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;float, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;float, 4, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:46:50:</span>   required from ‘<span style="font-weight: bold;">class Eigen::QuaternionBase&lt;Eigen::Quaternion&lt;float&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:273:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Quaternion&lt;float&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:27:3:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;float&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:165</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h: In instantiation of ‘<span style="font-weight: bold;">struct Eigen::internal::find_best_packet&lt;double, 4&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:22:57:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:266:49:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Quaternion&lt;double&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:98:47:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:44:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = Size==Dynamic || <span style="color: #BB00BB; font-weight: bold;">(Size%unpacket_traits&lt;PacketType&gt;::size)</span>==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value&gt;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = <span style="color: #BB00BB; font-weight: bold;">Size==Dynamic || (Size%unpacket_traits&lt;PacketType&gt;::size)==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value</span>&gt;</span></span>
-<span><span class="co">##       |                      <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::unpacket_traits&lt;__vector(2) double&gt;::half</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:208:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   208 |   typedef typename find_best_packet_helper&lt;Size,typename packet_traits&lt;T&gt;::type&gt;::type <span style="color: #BB00BB; font-weight: bold;">type</span>;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, 4, 1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;double, 4, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;double, 4, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:46:50:</span>   required from ‘<span style="font-weight: bold;">class Eigen::QuaternionBase&lt;Eigen::Quaternion&lt;double&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/Quaternion.h:273:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Quaternion&lt;double&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Geometry/arch/Geometry_SIMD.h:102:3:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/SparseCore:37</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Sparse:26</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:29</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrixBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::SparseMatrixBase&lt;Eigen::SparseMatrix&lt;double, 0, int&gt; &gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseCompressedBase.h:36:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::SparseCompressedBase&lt;Eigen::SparseMatrix&lt;double, 0, int&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrix.h:96:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::SparseMatrix&lt;double, 0, int&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/unsupported/Eigen/src/IterativeSolvers/ConstrainedConjGrad.h:61:25:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/SparseCore/SparseMatrixBase.h:47:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    47 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/aux_/na_assert.hpp:23</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/arg.hpp:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/placeholders.hpp:24</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/iterator/iterator_categories.hpp:16</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/iterator/iterator_concepts.hpp:10</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/range/concepts.hpp:20</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/range/size_type.hpp:20</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/range/size.hpp:21</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/random/hyperexponential_distribution.hpp:29</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/random.hpp:70</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:14</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/assert.hpp:194:21:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unnecessary parentheses in declaration of ‘<span style="font-weight: bold;">assert_arg</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wparentheses</span>]</span></span>
-<span><span class="co">##   194 | failed ************ <span style="color: #BB00BB; font-weight: bold;">(Pred::************</span></span></span>
-<span><span class="co">##       |                     <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   195 | <span style="color: #BB00BB; font-weight: bold;">      assert_arg( void (*)(Pred), typename assert_arg_pred&lt;Pred&gt;::type )</span></span></span>
-<span><span class="co">##       |       <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   196 | <span style="color: #BB00BB; font-weight: bold;">    )</span>;</span></span>
-<span><span class="co">##       |     <span style="color: #BB00BB; font-weight: bold;">~</span>                </span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/assert.hpp:194:21:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>remove parentheses</span></span>
-<span><span class="co">##   194 | failed ************ <span style="color: #00BBBB; font-weight: bold;">(Pred::************</span></span></span>
-<span><span class="co">##       |                     <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##       |                     <span style="color: #BB0000;">-</span></span></span>
-<span><span class="co">##   195 | <span style="color: #00BBBB; font-weight: bold;">      assert_arg( void (*)(Pred), typename assert_arg_pred&lt;Pred&gt;::type )</span></span></span>
-<span><span class="co">##       |       <span style="color: #00BBBB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   196 | <span style="color: #00BBBB; font-weight: bold;">    )</span>;</span></span>
-<span><span class="co">##       |     <span style="color: #00BBBB; font-weight: bold;">~</span>                </span></span>
-<span><span class="co">##       |     <span style="color: #BB0000;">-</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/assert.hpp:199:21:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unnecessary parentheses in declaration of ‘<span style="font-weight: bold;">assert_not_arg</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wparentheses</span>]</span></span>
-<span><span class="co">##   199 | failed ************ <span style="color: #BB00BB; font-weight: bold;">(boost::mpl::not_&lt;Pred&gt;::************</span></span></span>
-<span><span class="co">##       |                     <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   200 | <span style="color: #BB00BB; font-weight: bold;">      assert_not_arg( void (*)(Pred), typename assert_arg_pred_not&lt;Pred&gt;::type )</span></span></span>
-<span><span class="co">##       |       <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   201 | <span style="color: #BB00BB; font-weight: bold;">    )</span>;</span></span>
-<span><span class="co">##       |     <span style="color: #BB00BB; font-weight: bold;">~</span>                </span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/BH/include/boost/mpl/assert.hpp:199:21:</span> <span style="color: #00BBBB; font-weight: bold;">note: </span>remove parentheses</span></span>
-<span><span class="co">##   199 | failed ************ <span style="color: #00BBBB; font-weight: bold;">(boost::mpl::not_&lt;Pred&gt;::************</span></span></span>
-<span><span class="co">##       |                     <span style="color: #00BBBB; font-weight: bold;">^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##       |                     <span style="color: #BB0000;">-</span></span></span>
-<span><span class="co">##   200 | <span style="color: #00BBBB; font-weight: bold;">      assert_not_arg( void (*)(Pred), typename assert_arg_pred_not&lt;Pred&gt;::type )</span></span></span>
-<span><span class="co">##       |       <span style="color: #00BBBB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">##   201 | <span style="color: #00BBBB; font-weight: bold;">    )</span>;</span></span>
-<span><span class="co">##       |     <span style="color: #00BBBB; font-weight: bold;">~</span>                </span></span>
-<span><span class="co">##       |     <span style="color: #BB0000;">-</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:165</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h: In instantiation of ‘<span style="font-weight: bold;">struct Eigen::internal::find_best_packet&lt;double, -1&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:22:57:</span>   required from ‘<span style="font-weight: bold;">struct Eigen::internal::traits&lt;Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;double, -1, -1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:40:14:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:44:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = Size==Dynamic || <span style="color: #BB00BB; font-weight: bold;">(Size%unpacket_traits&lt;PacketType&gt;::size)</span>==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value&gt;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   190 |          bool Stop = <span style="color: #BB00BB; font-weight: bold;">Size==Dynamic || (Size%unpacket_traits&lt;PacketType&gt;::size)==0 || is_same&lt;PacketType,typename unpacket_traits&lt;PacketType&gt;::half&gt;::value</span>&gt;</span></span>
-<span><span class="co">##       |                      <span style="color: #BB00BB; font-weight: bold;">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:190:83:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::unpacket_traits&lt;__vector(2) double&gt;::half</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/util/XprHelper.h:208:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##   208 |   typedef typename find_best_packet_helper&lt;Size,typename packet_traits&lt;T&gt;::type&gt;::type <span style="color: #BB00BB; font-weight: bold;">type</span>;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, -1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, -1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, -1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;double, -1, -1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:40:14:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, 1&gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:302:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, 1&gt;, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:555:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::Matrix&lt;double, -1, 1&gt;, 3&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::Matrix&lt;double, -1, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::Matrix&lt;double, -1, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/PlainObjectBase.h:98:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::PlainObjectBase&lt;Eigen::Matrix&lt;double, -1, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/Matrix.h:178:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::Matrix&lt;double, -1, 1&gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:424:60:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:</span> In constructor ‘<span style="font-weight: bold;">ODE_desc::ODE_desc(RunInterventions*, Rcpp::List, Rcpp::List, Rcpp::List, double)</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:724:48:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>‘<span style="font-weight: bold;">ODE_desc::vac_dose</span>’ will be initialized after [<span style="color: #BB00BB; font-weight: bold;">-Wreorder</span>]</span></span>
-<span><span class="co">##   724 |     List vac_calendar, vac_info, vac_info_vhr, <span style="color: #BB00BB; font-weight: bold;">vac_dose</span>;</span></span>
-<span><span class="co">##       |                                                <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:724:24:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>  ‘<span style="font-weight: bold;">Rcpp::List ODE_desc::vac_info</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wreorder</span>]</span></span>
-<span><span class="co">##   724 |     List vac_calendar, <span style="color: #BB00BB; font-weight: bold;">vac_info</span>, vac_info_vhr, vac_dose;</span></span>
-<span><span class="co">##       |                        <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:734:3:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>  when initialized here [<span style="color: #BB00BB; font-weight: bold;">-Wreorder</span>]</span></span>
-<span><span class="co">##   734 |   <span style="color: #BB00BB; font-weight: bold;">ODE_desc</span>(RunInterventions* finELL_t, List vac_calendar_t, List vac_dose_t, List vac_info_t, double cov_c_t): finELL(finELL_t), vac_calendar(vac_calendar_t), vac_dose(vac_dose_t), vac_info(vac_info_t),  cov_c(cov_c_t){</span></span>
-<span><span class="co">##       |   <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Core:271</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/Dense:1</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigenForward.h:28</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/RcppEigen.h:25</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.h:12</span>,</span></span>
-<span><span class="co">##                  from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, 1&gt; &gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, 1&gt; &gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, 1&gt; &gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/CwiseNullaryOp.h:60:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, 1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:773:29:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">##    56 |                      &gt;::type <span style="color: #BB00BB; font-weight: bold;">PacketReturnType</span>;</span></span>
-<span><span class="co">##       |                              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~~~~~~~~</span></span></span>
-<span><span class="co">## /home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h: In instantiation of ‘<span style="font-weight: bold;">class Eigen::DenseCoeffsBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, -1&gt; &gt;, 0&gt;</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseBase.h:41:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::DenseBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, -1&gt; &gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/MatrixBase.h:48:34:</span>   required from ‘<span style="font-weight: bold;">class Eigen::MatrixBase&lt;Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, -1&gt; &gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/CwiseNullaryOp.h:60:7:</span>   required from ‘<span style="font-weight: bold;">class Eigen::CwiseNullaryOp&lt;Eigen::internal::scalar_constant_op&lt;double&gt;, Eigen::Matrix&lt;double, -1, -1&gt; &gt;</span>’</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:811:50:</span>   required from here</span></span>
-<span><span class="co">## <span style="font-weight: bold;">/home/runner/work/_temp/Library/RcppEigen/include/Eigen/src/Core/DenseCoeffsBase.h:56:30:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>ignoring attributes on template argument ‘<span style="font-weight: bold;">Eigen::internal::packet_traits&lt;double&gt;::type</span>’ {aka ‘<span style="font-weight: bold;">__m128d</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wignored-attributes</span>]</span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:</span> In member function ‘<span style="font-weight: bold;">void ODE_desc::operator()(std::vector&lt;double&gt;&amp;, std::vector&lt;double&gt;&amp;, double, Eigen::MatrixXd&amp;)</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:28:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cpmu</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double <span style="color: #BB00BB; font-weight: bold;">cpmu</span>, cpo, cMmu, cMo, cLo, cMa, cpmu_dose, cpo_dose, cMmu_dose, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                            <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:34:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cpo</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double cpmu, <span style="color: #BB00BB; font-weight: bold;">cpo</span>, cMmu, cMo, cLo, cMa, cpmu_dose, cpo_dose, cMmu_dose, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                                  <span style="color: #BB00BB; font-weight: bold;">^~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:39:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cMmu</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double cpmu, cpo, <span style="color: #BB00BB; font-weight: bold;">cMmu</span>, cMo, cLo, cMa, cpmu_dose, cpo_dose, cMmu_dose, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                                       <span style="color: #BB00BB; font-weight: bold;">^~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:55:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cMa</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double cpmu, cpo, cMmu, cMo, cLo, <span style="color: #BB00BB; font-weight: bold;">cMa</span>, cpmu_dose, cpo_dose, cMmu_dose, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                                                       <span style="color: #BB00BB; font-weight: bold;">^~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:60:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cpmu_dose</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double cpmu, cpo, cMmu, cMo, cLo, cMa, <span style="color: #BB00BB; font-weight: bold;">cpmu_dose</span>, cpo_dose, cMmu_dose, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                                                            <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1222:81:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cMmu_dose</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1222 |                     double cpmu, cpo, cMmu, cMo, cLo, cMa, cpmu_dose, cpo_dose, <span style="color: #BB00BB; font-weight: bold;">cMmu_dose</span>, cMo_dose, cLo_dose, cMa_dose;</span></span>
-<span><span class="co">##       |                                                                                 <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1225:25:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">q</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##  1225 |                     int <span style="color: #BB00BB; font-weight: bold;">q</span> = a*ag + kpc + r*rg;</span></span>
-<span><span class="co">##       |                         <span style="color: #BB00BB; font-weight: bold;">^</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1090:33:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">vac_c_o</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##  1090 |               double u, In, mu, <span style="color: #BB00BB; font-weight: bold;">vac_c_o</span>, vac_c_i;</span></span>
-<span><span class="co">##       |                                 <span style="color: #BB00BB; font-weight: bold;">^~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1090:42:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">vac_c_i</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##  1090 |               double u, In, mu, vac_c_o, <span style="color: #BB00BB; font-weight: bold;">vac_c_i</span>;</span></span>
-<span><span class="co">##       |                                          <span style="color: #BB00BB; font-weight: bold;">^~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1091:19:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">kp</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1091 |               int <span style="color: #BB00BB; font-weight: bold;">kp</span>;</span></span>
-<span><span class="co">##       |                   <span style="color: #BB00BB; font-weight: bold;">^~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1011:18:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">r_prop</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##  1011 |           double <span style="color: #BB00BB; font-weight: bold;">r_prop</span> = 0;</span></span>
-<span><span class="co">##       |                  <span style="color: #BB00BB; font-weight: bold;">^~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1056:65:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">cl</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1056 |           double muBp, muBc, muBn, muBpv, muBcv, muBnv, mu_mat, <span style="color: #BB00BB; font-weight: bold;">cl</span>, Icp, Icc, up, kpc, kpd, pro, pro_v_in, pro_v_out, rp;</span></span>
-<span><span class="co">##       |                                                                 <span style="color: #BB00BB; font-weight: bold;">^~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1056:69:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">Icp</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1056 |           double muBp, muBc, muBn, muBpv, muBcv, muBnv, mu_mat, cl, <span style="color: #BB00BB; font-weight: bold;">Icp</span>, Icc, up, kpc, kpd, pro, pro_v_in, pro_v_out, rp;</span></span>
-<span><span class="co">##       |                                                                     <span style="color: #BB00BB; font-weight: bold;">^~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1056:74:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">Icc</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1056 |           double muBp, muBc, muBn, muBpv, muBcv, muBnv, mu_mat, cl, Icp, <span style="color: #BB00BB; font-weight: bold;">Icc</span>, up, kpc, kpd, pro, pro_v_in, pro_v_out, rp;</span></span>
-<span><span class="co">##       |                                                                          <span style="color: #BB00BB; font-weight: bold;">^~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1056:79:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">up</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1056 |           double muBp, muBc, muBn, muBpv, muBcv, muBnv, mu_mat, cl, Icp, Icc, <span style="color: #BB00BB; font-weight: bold;">up</span>, kpc, kpd, pro, pro_v_in, pro_v_out, rp;</span></span>
-<span><span class="co">##       |                                                                               <span style="color: #BB00BB; font-weight: bold;">^~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1056:88:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">kpd</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1056 |           double muBp, muBc, muBn, muBpv, muBcv, muBnv, mu_mat, cl, Icp, Icc, up, kpc, <span style="color: #BB00BB; font-weight: bold;">kpd</span>, pro, pro_v_in, pro_v_out, rp;</span></span>
-<span><span class="co">##       |                                                                                        <span style="color: #BB00BB; font-weight: bold;">^~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:875:14:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">tot_coc</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##   875 |       double <span style="color: #BB00BB; font-weight: bold;">tot_coc</span> = 0, tot_coc_v = 0, tot_inf = 0, tot_inf_v = 0;</span></span>
-<span><span class="co">##       |              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:875:27:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">tot_coc_v</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##   875 |       double tot_coc = 0, <span style="color: #BB00BB; font-weight: bold;">tot_coc_v</span> = 0, tot_inf = 0, tot_inf_v = 0;</span></span>
-<span><span class="co">##       |                           <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:875:42:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">tot_inf</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##   875 |       double tot_coc = 0, tot_coc_v = 0, <span style="color: #BB00BB; font-weight: bold;">tot_inf</span> = 0, tot_inf_v = 0;</span></span>
-<span><span class="co">##       |                                          <span style="color: #BB00BB; font-weight: bold;">^~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:875:55:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>unused variable ‘<span style="font-weight: bold;">tot_inf_v</span>’ [<span style="color: #BB00BB; font-weight: bold;">-Wunused-variable</span>]</span></span>
-<span><span class="co">##   875 |       double tot_coc = 0, tot_coc_v = 0, tot_inf = 0, <span style="color: #BB00BB; font-weight: bold;">tot_inf_v</span> = 0;</span></span>
-<span><span class="co">##       |                                                       <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:991:14:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">tot_C_inv</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##   991 |       double <span style="color: #BB00BB; font-weight: bold;">tot_C_inv</span>;</span></span>
-<span><span class="co">##       |              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1004:14:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">step_in</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1004 |       double <span style="color: #BB00BB; font-weight: bold;">step_in</span>, step_out, step_out_dose, step_in_S0, step_in_S1;</span></span>
-<span><span class="co">##       |              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~</span></span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1005:14:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>variable ‘<span style="font-weight: bold;">loss_mat</span>’ set but not used [<span style="color: #BB00BB; font-weight: bold;">-Wunused-but-set-variable</span>]</span></span>
-<span><span class="co">##  1005 |       double <span style="color: #BB00BB; font-weight: bold;">loss_mat</span>, loss_lav_S0, loss_lav_S1, loss_lav_S2, loss_lav_S3;</span></span>
-<span><span class="co">##       |              <span style="color: #BB00BB; font-weight: bold;">^~~~~~~~</span></span></span>
-<span><span class="co">## In file included from <span style="font-weight: bold;">RunInterventions.cpp:7</span>:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:</span> In function ‘<span style="font-weight: bold;">void check_stability(std::vector&lt;double&gt;&amp;)</span>’:</span></span>
-<span><span class="co">## <span style="font-weight: bold;">RunInterventions.h:1541:23:</span> <span style="color: #BB00BB; font-weight: bold;">warning: </span>comparison of integer expressions of different signedness: ‘<span style="font-weight: bold;">int</span>’ and ‘<span style="font-weight: bold;">std::vector&lt;double&gt;::size_type</span>’ {aka ‘<span style="font-weight: bold;">long unsigned int</span>’} [<span style="color: #BB00BB; font-weight: bold;">-Wsign-compare</span>]</span></span>
-<span><span class="co">##  1541 |     for (int i = 0; <span style="color: #BB00BB; font-weight: bold;">i &lt; x0.size()</span>; i ++) {</span></span>
-<span><span class="co">##       |                     <span style="color: #BB00BB; font-weight: bold;">~~^~~~~~~~~~~</span></span></span>
-<span><span class="co">## g++ -std=gnu++17 -shared -L/opt/R/4.4.2/lib/R/lib -L/usr/local/lib -o rsvie.so RcppExports.o RunInterventions.o -L/opt/R/4.4.2/lib/R/lib -lR</span></span>
-<span><span class="co">## installing to /tmp/RtmpIQ7QDh/devtools_install_18ec6ae00908/00LOCK-rsvie/00new/rsvie/libs</span></span>
-<span><span class="co">## ** checking absolute paths in shared objects and dynamic libraries</span></span>
-<span><span class="co">## * DONE (rsvie)</span></span></code></pre>
-<pre><code><span><span class="co">## Creating a new generic function for 'run' in package 'rsvie'</span></span></code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<span><span class="co">## Creating a new generic function for 'run' in package 'rsvie'</span></span></code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This defines an RSVPrograpkmme class</span></span>
 <span><span class="va">RSVempty</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_rsv_programme.html">make_rsv_programme</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># To see what is in these slots </span></span>
 <span><span class="va">RSVempty</span> <span class="op">%&gt;%</span> <span class="va">str</span></span></code></pre></div>
-<pre><code><span><span class="co">## Formal class 'RSVProgramme' [package "rsvie"] with 25 slots</span></span>
-<span><span class="co">##   ..@ econ_name           : chr(0) </span></span>
-<span><span class="co">##   ..@ prog_name           : chr(0) </span></span>
-<span><span class="co">##   ..@ model               :Reference class 'Rcpp_RunInterventions' [package ".GlobalEnv"] with 20 fields</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_c  : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_c_h: num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_p  : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_p_h: num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwn_c         : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ nwn_p         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwp_c         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwp_p         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pHR           : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pLR           : num [1:25] 0.961 0.99 0.99 0.998 0.998 ...</span></span>
-<span><span class="co">##   .. ..$ pVHR          : num [1:25] 0.03855 0.00992 0.00992 0.00207 0.00207 ...</span></span>
-<span><span class="co">##   .. ..$ p_mat         : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwn_c         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwn_p         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwp_c         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwp_p         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ run_burn      : num 730</span></span>
-<span><span class="co">##   .. ..$ run_full      : num 3650</span></span>
-<span><span class="co">##   .. ..$ run_start     : num 0</span></span>
-<span><span class="co">##   .. ..$ u_p           : num [1:3] 0.175 0.601 0.223</span></span>
-<span><span class="co">##   .. ..and 18 methods, of which 4 are  possibly relevant:</span></span>
-<span><span class="co">##   .. ..  finalize, initialize, Sample, StatesValues</span></span>
-<span><span class="co">##   ..@ uk_data             :List of 28</span></span>
-<span><span class="co">##   .. ..$ ageGroupBoundary     : num [1:25] 0 0.0833 0.1667 0.25 0.3333 ...</span></span>
-<span><span class="co">##   .. ..$ ageGroupNumber       : int 25</span></span>
-<span><span class="co">##   .. ..$ numberDailyLiveBirths: num 1861</span></span>
-<span><span class="co">##   .. ..$ population           : num 55744600</span></span>
-<span><span class="co">##   .. ..$ contactMatrixPhy     : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ contactMatrixCon     : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ observationalData    :'data.frame': 364 obs. of  26 variables:</span></span>
-<span><span class="co">##   .. .. ..$ X  : int [1:364] 1 2 3 4 5 6 7 8 9 10 ...</span></span>
-<span><span class="co">##   .. .. ..$ X1 : num [1:364] 1.761 0.945 3.924 3.346 3.742 ...</span></span>
-<span><span class="co">##   .. .. ..$ X2 : num [1:364] 3.357 4.727 0.355 0.855 4.409 ...</span></span>
-<span><span class="co">##   .. .. ..$ X3 : num [1:364] 3.67 3.49 2.05 3.56 4.67 ...</span></span>
-<span><span class="co">##   .. .. ..$ X4 : num [1:364] 2.86 2.9 1.49 2.46 1.1 ...</span></span>
-<span><span class="co">##   .. .. ..$ X5 : num [1:364] 4.366 0.805 1.663 4.389 1.836 ...</span></span>
-<span><span class="co">##   .. .. ..$ X6 : num [1:364] 4.148 1.27 0.543 3.424 4.724 ...</span></span>
-<span><span class="co">##   .. .. ..$ X7 : num [1:364] 0.151 2.705 4.833 3.268 4.416 ...</span></span>
-<span><span class="co">##   .. .. ..$ X8 : num [1:364] 1.192 4.355 0.358 4.548 1.498 ...</span></span>
-<span><span class="co">##   .. .. ..$ X9 : num [1:364] 1.7 0.361 2.516 2.387 4.546 ...</span></span>
-<span><span class="co">##   .. .. ..$ X10: num [1:364] 0.843 2.4 2.165 4.845 3.693 ...</span></span>
-<span><span class="co">##   .. .. ..$ X11: num [1:364] 1.996 0.223 4.335 4.939 2.841 ...</span></span>
-<span><span class="co">##   .. .. ..$ X12: num [1:364] 3.742 0.884 1.334 4.946 1.599 ...</span></span>
-<span><span class="co">##   .. .. ..$ X13: num [1:364] 4.99 5.19 5.72 3.71 1.12 ...</span></span>
-<span><span class="co">##   .. .. ..$ X14: num [1:364] 5.36 2.47 2.12 1.38 4.73 ...</span></span>
-<span><span class="co">##   .. .. ..$ X15: num [1:364] 1.1 4.75 3.07 2.13 1.76 ...</span></span>
-<span><span class="co">##   .. .. ..$ X16: num [1:364] 1.836 3.633 0.842 0.174 3.357 ...</span></span>
-<span><span class="co">##   .. .. ..$ X17: num [1:364] 4.724 3.946 1.951 0.264 3.665 ...</span></span>
-<span><span class="co">##   .. .. ..$ X18: num [1:364] 4.416 0.253 1.724 2.002 2.86 ...</span></span>
-<span><span class="co">##   .. .. ..$ X19: num [1:364] 1.5 4.32 1.37 3.37 4.37 ...</span></span>
-<span><span class="co">##   .. .. ..$ X20: num [1:364] 4.546 1.869 0.811 0.213 4.148 ...</span></span>
-<span><span class="co">##   .. .. ..$ X21: num [1:364] 3.026 3.368 3.31 4.883 0.151 ...</span></span>
-<span><span class="co">##   .. .. ..$ X22: num [1:364] 2.841 1.55 3.078 0.833 0.577 ...</span></span>
-<span><span class="co">##   .. .. ..$ X23: num [1:364] 1.6 3.43 2.15 3.81 1.7 ...</span></span>
-<span><span class="co">##   .. .. ..$ X24: num [1:364] 0.463 3.595 3.261 2.438 0.843 ...</span></span>
-<span><span class="co">##   .. .. ..$ X25: num [1:364] 4.728 0.406 3.633 1.825 1.996 ...</span></span>
-<span><span class="co">##   .. ..$ populationAgeGroup   : num [1:25] 56605 56605 56605 56605 56605 ...</span></span>
-<span><span class="co">##   .. ..$ prop_mat             : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pVHR                 : num [1:25] 0.03855 0.00992 0.00992 0.00207 0.00207 ...</span></span>
-<span><span class="co">##   .. ..$ pHR                  : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pLR                  : num [1:25] 0.961 0.99 0.99 0.998 0.998 ...</span></span>
-<span><span class="co">##   .. ..$ nmat                 : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nVHR                 : num [1:25] 2182 561 561 117 117 ...</span></span>
-<span><span class="co">##   .. ..$ nHR                  : num [1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nLR                  : num [1:25] 54424 56044 56044 56488 56488 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_p         : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_p_h       : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwp_p                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwn_p                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwp_p                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwn_p                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_c         : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ cnt_matrix_c_h       : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   .. ..$ pwp_c                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ pwn_c                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwp_c                : num [1:25, 1:25] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">##   .. ..$ nwn_c                : num [1:25, 1:25] 0.000683 0.000683 0.000683 0.000683 0.000683 ...</span></span>
-<span><span class="co">##   ..@ model_par           :List of 2</span></span>
-<span><span class="co">##   .. ..$ burnin_yrs: num 2</span></span>
-<span><span class="co">##   .. ..$ run_yrs   : num 10</span></span>
-<span><span class="co">##   ..@ econ_par            :List of 2</span></span>
-<span><span class="co">##   .. ..$ time_horizon : num 10</span></span>
-<span><span class="co">##   .. ..$ discount_rate: num 0.035</span></span>
-<span><span class="co">##   ..@ model_calendar      : list()</span></span>
-<span><span class="co">##   ..@ dose_calendar       : list()</span></span>
-<span><span class="co">##   ..@ immune_profile      : list()</span></span>
-<span><span class="co">##   ..@ econ_df             :'data.frame': 0 obs. of  0 variables</span></span>
-<span><span class="co">## Formal class 'data.frame' [package "methods"] with 4 slots</span></span>
-<span><span class="co">##   .. .. ..@ .Data    : list()</span></span>
-<span><span class="co">##   .. .. ..@ names    : chr(0) </span></span>
-<span><span class="co">##   .. .. ..@ row.names: int(0) </span></span>
-<span><span class="co">##   .. .. ..@ .S3Class : chr "data.frame"</span></span>
-<span><span class="co">##   ..@ risks_df            :'data.frame': 0 obs. of  0 variables</span></span>
-<span><span class="co">## Formal class 'data.frame' [package "methods"] with 4 slots</span></span>
-<span><span class="co">##   .. .. ..@ .Data    : list()</span></span>
-<span><span class="co">##   .. .. ..@ names    : chr(0) </span></span>
-<span><span class="co">##   .. .. ..@ row.names: int(0) </span></span>
-<span><span class="co">##   .. .. ..@ .S3Class : chr "data.frame"</span></span>
-<span><span class="co">##   ..@ risks_vhr_df        :'data.frame': 0 obs. of  0 variables</span></span>
-<span><span class="co">## Formal class 'data.frame' [package "methods"] with 4 slots</span></span>
-<span><span class="co">##   .. .. ..@ .Data    : list()</span></span>
-<span><span class="co">##   .. .. ..@ names    : chr(0) </span></span>
-<span><span class="co">##   .. .. ..@ row.names: int(0) </span></span>
-<span><span class="co">##   .. .. ..@ .S3Class : chr "data.frame"</span></span>
-<span><span class="co">##   ..@ outcomes_vec        : logi(0) </span></span>
-<span><span class="co">##   ..@ post                :'data.frame': 1249 obs. of  25 variables:</span></span>
-<span><span class="co">##   .. ..$ xi     : num [1:1249] 124 123 123 121 117 ...</span></span>
-<span><span class="co">##   .. ..$ si     : num [1:1249] 4.2 4.28 4.29 4.41 4.34 ...</span></span>
-<span><span class="co">##   .. ..$ g0     : num [1:1249] 5.62 5.48 5.38 5.34 5.47 ...</span></span>
-<span><span class="co">##   .. ..$ g1     : num [1:1249] 0.896 0.895 0.906 0.911 0.893 ...</span></span>
-<span><span class="co">##   .. ..$ g2     : num [1:1249] 0.91 0.916 0.925 0.904 0.921 ...</span></span>
-<span><span class="co">##   .. ..$ om     : num [1:1249] 353 354 352 351 356 ...</span></span>
-<span><span class="co">##   .. ..$ pA1    : num [1:1249] 0.1745 0.1307 0.1138 0.0881 0.0624 ...</span></span>
-<span><span class="co">##   .. ..$ pA2    : num [1:1249] 0.183 0.169 0.175 0.145 0.167 ...</span></span>
-<span><span class="co">##   .. ..$ pA3    : num [1:1249] 0.519 0.524 0.537 0.549 0.537 ...</span></span>
-<span><span class="co">##   .. ..$ pA4    : num [1:1249] 0.651 0.653 0.668 0.659 0.655 ...</span></span>
-<span><span class="co">##   .. ..$ alpha_i: num [1:1249] 0.487 0.491 0.506 0.505 0.477 ...</span></span>
-<span><span class="co">##   .. ..$ d1     : num [1:1249] 0.882 0.89 0.899 0.899 0.882 ...</span></span>
-<span><span class="co">##   .. ..$ d2     : num [1:1249] 0.622 0.622 0.636 0.648 0.635 ...</span></span>
-<span><span class="co">##   .. ..$ d3     : num [1:1249] 0.438 0.439 0.428 0.435 0.446 ...</span></span>
-<span><span class="co">##   .. ..$ phi    : num [1:1249] 0.622 0.622 0.623 0.625 0.622 ...</span></span>
-<span><span class="co">##   .. ..$ qp     : num [1:1249] 0.097 0.0979 0.0975 0.0974 0.0977 ...</span></span>
-<span><span class="co">##   .. ..$ qc     : num [1:1249] 0.999 1 0.999 0.999 1 ...</span></span>
-<span><span class="co">##   .. ..$ b1     : num [1:1249] 2 2 2 2 2 ...</span></span>
-<span><span class="co">##   .. ..$ psi    : num [1:1249] 0.259 0.258 0.257 0.255 0.26 ...</span></span>
-<span><span class="co">##   .. ..$ c5ep1  : num [1:1249] -4.6 -4.6 -4.61 -4.61 -4.62 ...</span></span>
-<span><span class="co">##   .. ..$ c5ep2  : num [1:1249] -0.233 -0.233 -0.234 -0.233 -0.23 ...</span></span>
-<span><span class="co">##   .. ..$ ep5    : num [1:1249] 3.05e-05 3.04e-05 3.07e-05 2.87e-05 3.06e-05 ...</span></span>
-<span><span class="co">##   .. ..$ ep6    : num [1:1249] 0.000147 0.000146 0.000144 0.000142 0.000144 ...</span></span>
-<span><span class="co">##   .. ..$ l1     : num [1:1249] 0.316 0.332 0.331 0.318 0.318 ...</span></span>
-<span><span class="co">##   .. ..$ l2     : num [1:1249] 0.376 0.374 0.375 0.376 0.425 ...</span></span>
-<span><span class="co">##   ..@ seeds               : num [1:999] 1083 169 144 183 483 ...</span></span>
-<span><span class="co">##   ..@ S                   : num 1</span></span>
-<span><span class="co">##   ..@ raw_inci            : list()</span></span>
-<span><span class="co">##   ..@ wane_func_string    : chr(0) </span></span>
-<span><span class="co">##   ..@ wane_func_string_vhr: chr(0) </span></span>
-<span><span class="co">##   ..@ outcomes            : list()</span></span>
-<span><span class="co">##   ..@ samples_outcomes    : list()</span></span>
-<span><span class="co">##   ..@ samples_outcomes_VHR: list()</span></span>
-<span><span class="co">##   ..@ efficacies          : logi(0) </span></span>
-<span><span class="co">##   ..@ cov_mat             : num(0) </span></span>
-<span><span class="co">##   ..@ full_output         : logi FALSE</span></span></code></pre>
 <p>Let’s have a more detailed look at what’s in these slots. I wouldn’t
 recommend changing them, but future package iterations should allow for
 more flexibility.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">prog_name</span> <span class="co"># Name of the programme considered (currently empty)</span></span></code></pre></div>
-<pre><code><span><span class="co">## character(0)</span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">econ_name</span> <span class="co"># Name of the economics considered (currently empty)</span></span></code></pre></div>
-<pre><code><span><span class="co">## character(0)</span></span></code></pre>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">model</span> <span class="co"># This is the R interface to the cpp class defined in src/RunIntervention.cpp</span></span></code></pre></div>
-<pre><code><span><span class="co">## C++ object &lt;0x5599c4d787b0&gt; of class 'RunInterventions' &lt;0x5599c0c5c540&gt;</span></span></code></pre>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">model_par</span> <span class="co"># This gives the burn-in and run_yrs (how long the model is run for after bur-in). </span></span></code></pre></div>
-<pre><code><span><span class="co">## $burnin_yrs</span></span>
-<span><span class="co">## [1] 2</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $run_yrs</span></span>
-<span><span class="co">## [1] 10</span></span></code></pre>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">econ_par</span> <span class="co"># Parameters associated with the economics of the model, time_horizon is currently set to 10 years, and the discount rate is 3.5%</span></span></code></pre></div>
-<pre><code><span><span class="co">## $time_horizon</span></span>
-<span><span class="co">## [1] 10</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $discount_rate</span></span>
-<span><span class="co">## [1] 0.035</span></span></code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">uk_data</span><span class="op">$</span><span class="va">populationAgeGroup</span> <span class="co"># Posterior distributions fitted to UK-specific data</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1]   56605.42   56605.42   56605.42   56605.42   56605.42   56605.42</span></span>
-<span><span class="co">##  [7]   56605.42   56605.42   56605.42   56605.42   56605.42   56605.42</span></span>
-<span><span class="co">## [13]  679265.00  679265.00  679265.00  679265.00 3396325.00 3396325.00</span></span>
-<span><span class="co">## [19] 6792650.00 6792650.00 6792650.00 6792650.00 6792650.00 6792650.00</span></span>
-<span><span class="co">## [25] 4799725.00</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">RSVempty</span><span class="op">@</span><span class="va">prog_name</span> <span class="co"># Name of the programme considered (currently empty)</span></span>
+<span><span class="va">RSVempty</span><span class="op">@</span><span class="va">econ_name</span> <span class="co"># Name of the economics considered (currently empty)</span></span>
+<span><span class="va">RSVempty</span><span class="op">@</span><span class="va">model</span> <span class="co"># This is the R interface to the cpp class defined in src/RunIntervention.cpp</span></span>
+<span><span class="va">RSVempty</span><span class="op">@</span><span class="va">model_par</span> <span class="co"># This gives the burn-in and run_yrs (how long the model is run for after bur-in). </span></span>
+<span><span class="va">RSVempty</span><span class="op">@</span><span class="va">econ_par</span> <span class="co"># Parameters associated with the economics of the model, time_horizon is currently set to 10 years, and the discount rate is 3.5%</span></span>
+<span><span class="va">RSVempty</span><span class="op">@</span><span class="va">uk_data</span><span class="op">$</span><span class="va">populationAgeGroup</span> <span class="co"># Posterior distributions fitted to UK-specific data</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="add-estimate-pre-vaccination-burden-and-risks-of-the-programme">2. Add estimate pre-vaccination burden and risks of the
 programme<a class="anchor" aria-label="anchor" href="#add-estimate-pre-vaccination-burden-and-risks-of-the-programme"></a>
@@ -821,7 +132,7 @@ model. This includes the health outcomes considered, the risk of each
 health outcome occurring per infection, and the QALY loss and cost of
 each outcome. First, we define the risk of each health outcome per age
 group:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">econ_raw_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"rsvie"</span>, <span class="st">"extdata"</span>, <span class="st">"econ"</span>, <span class="st">"econ_pars_ss.csv"</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="va">risks_vhr_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"rsvie"</span>, <span class="st">"extdata"</span>, <span class="st">"econ"</span>,  <span class="st">"outcome_risks_vhr.csv"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -845,7 +156,7 @@ group:</p>
 </h3>
 <p>Now, we need to load the QALY loss and cost for each outcome per age
 group.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">immune_profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"rsvie"</span>, <span class="st">"extdata"</span>, <span class="st">"efficacies"</span>, <span class="st">"immune_profiles_unbound.RDS"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -855,7 +166,7 @@ group.</p>
 intervention programme. We have several vignettes showing how to
 evaluate various types of programmes that use different products. Here
 is a simple example:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># To evaluate a seasonal monoclonal given at birth, we load an Excel spreadsheet such as:</span></span>
 <span><span class="va">cal_none</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"rsvie"</span>, <span class="st">"extdata"</span>, <span class="st">"calendars"</span>, <span class="st">"cal_none.csv"</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="va">cal_vhr_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"rsvie"</span>, <span class="st">"extdata"</span>, <span class="st">"calendars"</span>, <span class="st">"cal_vhr_s.csv"</span><span class="op">)</span><span class="op">)</span> </span>
@@ -870,12 +181,12 @@ is a simple example:</p>
 <p>To simulate a programme, we call <code><a href="../reference/run.html">rsvie::run</a></code> on the class
 defined above. This will simulate the programme and return a class with
 the results.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># base vase</span></span>
 <span><span class="va">RSV_mab_vhr</span> <span class="op">&lt;-</span> <span class="fu">rsvie</span><span class="fu">::</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">RSV_mab_vhr</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running: Iterating through model simulations</span></span>
 <span><span class="co">##  Sample no:  1     Running: Calculating the outcomes</span></span></code></pre>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># seasonal</span></span>
 <span><span class="va">RSV_mab_s</span> <span class="op">&lt;-</span> <span class="fu">rsvie</span><span class="fu">::</span><span class="fu"><a href="../reference/run.html">run</a></span><span class="op">(</span><span class="va">RSV_mab_s</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running: Iterating through model simulations</span></span>
@@ -884,7 +195,7 @@ the results.</p>
 <div class="section level3">
 <h3 id="extract-incidence-for-further-exploration">6. Extract incidence for further exploration<a class="anchor" aria-label="anchor" href="#extract-incidence-for-further-exploration"></a>
 </h3>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Look at full posterior outcomes</span></span>
 <span></span>
 <span><span class="co"># summari outcomes annually</span></span>
@@ -892,22 +203,6 @@ the results.</p>
 <span><span class="va">RSV_mab_s_sum</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/summarise_outcomes.html">summarise_outcomes</a></span><span class="op">(</span><span class="va">RSV_mab_s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/get_averted_df.html">get_averted_df</a></span><span class="op">(</span><span class="va">RSV_mab_vhr_sum</span>, <span class="va">RSV_mab_s_sum</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 150 × 7</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># Groups:   s, outcome [6]</span></span></span>
-<span><span class="co">##        s outcome    age_group cases_total case_total_base total_case_averted</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     1 A+E visits &lt;1 month        <span style="text-decoration: underline;">1</span>516.           <span style="text-decoration: underline;">6</span>032.           <span style="text-decoration: underline;">4</span>516.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     1 A+E visits 1 month         <span style="text-decoration: underline;">2</span>864.           <span style="text-decoration: underline;">6</span>136.           <span style="text-decoration: underline;">3</span>272.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     1 A+E visits 2 month         <span style="text-decoration: underline;">3</span>915.           <span style="text-decoration: underline;">6</span>164.           <span style="text-decoration: underline;">2</span>249.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     1 A+E visits 3 month         <span style="text-decoration: underline;">4</span>883.           <span style="text-decoration: underline;">6</span>231.           <span style="text-decoration: underline;">1</span>348.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     1 A+E visits 4 month         <span style="text-decoration: underline;">5</span>595.           <span style="text-decoration: underline;">6</span>273.            678.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     1 A+E visits 5 month         <span style="text-decoration: underline;">6</span>049.           <span style="text-decoration: underline;">6</span>301.            252.   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     1 A+E visits 6 month         <span style="text-decoration: underline;">6</span>036.           <span style="text-decoration: underline;">6</span>036.              0.384</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     1 A+E visits 7 month         <span style="text-decoration: underline;">6</span>196.           <span style="text-decoration: underline;">6</span>050.           -<span style="color: #BB0000;">145.</span>   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     1 A+E visits 8 month         <span style="text-decoration: underline;">6</span>311.           <span style="text-decoration: underline;">6</span>060.           -<span style="color: #BB0000;">251.</span>   </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     1 A+E visits 9 month         <span style="text-decoration: underline;">6</span>410.           <span style="text-decoration: underline;">6</span>067.           -<span style="color: #BB0000;">342.</span>   </span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 140 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1 more variable: prop_cases_averted &lt;dbl&gt;</span></span></span></code></pre>
 </div>
 </div>
   </div>
