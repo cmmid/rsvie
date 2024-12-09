@@ -18,14 +18,11 @@ library(rsvie)
 ## Quick start and overview of the package
 
 The user must define several components in order to simulate the impact of an RSV intervention programme. These are
+
 1. `add_economics`, the user must define the health outcomes considered, the risk of each health outcome occurring per-infection, and the QALY loss and cost of each outcome.
-2. `add_programme`, the user must define the programme characteristics they wish to evaluate, including the timings (start date and end date), the target age group, the product's immunological profile, and the uptake rate. 
+2. `add_programme`, the user must define the programme characteristics they wish to evaluate, including the timings (start date and end date), the target age group, the product's immunological profile, and the uptake rate.
 
-A detailed vignette explaining defining these characteristics can be found in `vignettes/example.Rmd`. 
-
-## Example vignettes
-
-We also include several vignettes showing how to evaluate various programmes. These are found in `vignettes/sanity_check_*`.
+A detailed vignettes explaining explaining how these work are in the `vignettes` folder.
 
 ## Contact
 

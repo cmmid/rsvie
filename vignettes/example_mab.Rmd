@@ -15,7 +15,7 @@ vignette: >
 This vignette explains how to use the `rsvie` package to evaluate the impact of different RSV intervention programmes. The package is designed to be flexible and allow the user to define different intervention programmes, with different immunological profiles, and evaluate their impact on RSV outcomes.
 
 
-```{r, load libraries, echo=FALSE, results='hide'}
+```{r, load libraries, warning=FALSE}
 
 # Load the package (or library(rsvie))
 devtools::load_all()
@@ -30,7 +30,7 @@ RSVempty %>% str
 
 Let's have a more detailed look at what's in these slots. I wouldn't recommend changing them, but future package iterations should allow for more flexibility. 
 
-```{r check, echo=FALSE, results='hide'}
+```{r check, warning=FALSE}
 
 RSVempty@prog_name # Name of the programme considered (currently empty)
 RSVempty@econ_name # Name of the economics considered (currently empty)
@@ -48,7 +48,7 @@ RSVempty@uk_data$populationAgeGroup # Posterior distributions fitted to UK-speci
 With this empty class, we now add information on the economics of the model. This includes the health outcomes considered, the risk of each health outcome occurring per infection, and the QALY loss and cost of each outcome.
 First, we define the risk of each health outcome per age group:
 
-```{r incidence, echo=FALSE, results='hide'}
+```{r incidence, warning=FALSE}
 
 econ_raw_ss <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ss.csv")) 
 risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ",  "outcome_risks_vhr.csv"))
@@ -68,7 +68,7 @@ RSVempty_ss <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks
 
 Now, we need to load the QALY loss and cost for each outcome per age group. 
 
-```{r risks, echo=FALSE, results='hide'}
+```{r risks, warning=FALSE}
 
 immune_profile <- readRDS(file = system.file(package = "rsvie", "extdata", "efficacies", "immune_profiles_unbound.RDS"))
 
@@ -79,7 +79,7 @@ immune_profile <- readRDS(file = system.file(package = "rsvie", "extdata", "effi
 
 With the economics and risks defined, we can now define an intervention programme. We have several vignettes showing how to evaluate various types of programmes that use different products. Here is a simple example:
 
-```{r calendars, echo=FALSE, results='hide'}
+```{r calendars, warning=FALSE}
 
 # To evaluate a seasonal monoclonal given at birth, we load an Excel spreadsheet such as:
 cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
@@ -98,7 +98,7 @@ RSV_mab_s <- add_programme(RSVempty_ss, prog_name = "mab_s", cal_mabs_s, cal_vhr
 
 To simulate a programme, we call `rsvie::run` on the class defined above. This will simulate the programme and return a class with the results.
 
-```{r run, echo=FALSE, results='hide'}
+```{r run, warning=FALSE}
 
 # base vase
 RSV_mab_vhr <- rsvie::run(RSV_mab_vhr)
@@ -109,7 +109,7 @@ RSV_mab_s <- rsvie::run(RSV_mab_s)
 
 ## 6. Extract incidence for further exploration 
 
-```{r post-process, echo=FALSE, results='hide'}
+```{r post-process, warning=FALSE}
 
 # Look at full posterior outcomes
 
