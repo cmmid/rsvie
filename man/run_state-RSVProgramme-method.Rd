@@ -7,7 +7,11 @@
 \S4method{run_state}{RSVProgramme}(object, S_i = 1, direct = FALSE)
 }
 \arguments{
-\item{object}{RSVProgramme object}
+\item{object}{An object on which the state is to be run.}
+
+\item{S_i}{An integer representing the state index. Default is 1.}
+
+\item{direct}{A logical value indicating whether to run the state directly. Default is FALSE.}
 }
 \value{
 a matrix with all the values of the state variables in the dynamic transmission model

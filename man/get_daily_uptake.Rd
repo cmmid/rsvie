@@ -2,18 +2,28 @@
 % Please edit documentation in R/add_programme_methods.R
 \name{get_daily_uptake}
 \alias{get_daily_uptake}
-\title{Function to convert a custom weekly uptake vector into a daily uptake calendar}
+\title{Calculate Daily Uptake from Weekly Data}
 \usage{
 get_daily_uptake(up_week_raw, start_time)
 }
 \arguments{
-\item{up_week_raw}{A vector of weekly uptake proportions}
+\item{up_week_raw}{A numeric vector containing the weekly uptake data.}
 
-\item{start_time}{Start week when administration occurs}
+\item{start_time}{An integer representing the start time in days.}
 }
 \value{
-A vector of the daily proportion of a target group which are vaccinated.
+A numeric vector of length 365 representing the daily uptake.
 }
 \description{
-Function to convert a custom weekly uptake vector into a daily uptake calendar
+This function calculates the daily uptake based on weekly uptake data.
+}
+\details{
+The function first processes the weekly data to fill a weekly uptake vector, then calculates the daily uptake by interpolating the weekly data.
+}
+\examples{
+\dontrun{
+up_week_raw <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+start_time <- 1
+daily_uptake <- get_daily_uptake(up_week_raw, start_time)
+}
 }

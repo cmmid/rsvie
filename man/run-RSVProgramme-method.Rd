@@ -4,13 +4,16 @@
 \alias{run,RSVProgramme-method}
 \title{A setMethod for the \code{run} function}
 \usage{
-\S4method{run}{RSVProgramme}(object, direct = FALSE, filename = NULL)
+\S4method{run}{RSVProgramme}(object, direct = FALSE, filename = NULL, yr_num = 2)
 }
 \arguments{
-\item{object}{RSVProgramme object}
-}
-\value{
-An RSVProgramme object
+\item{object}{The object on which the operation is performed.}
+
+\item{direct}{A logical value indicating whether to run the operation directly.}
+
+\item{filename}{An optional character string specifying the filename.}
+
+\item{yr_num}{An integer specifying the number of years, default is 2.#' @return An RSVProgramme object}
 }
 \description{
 A setMethod for the \code{run} function

@@ -2,22 +2,40 @@
 % Please edit documentation in R/programmeClass.R
 \name{add_economics,RSVProgramme-method}
 \alias{add_economics,RSVProgramme-method}
-\title{A setMethod for the \code{add_economics} function}
+\title{Add Economics Data to RSVProgramme Object}
 \usage{
 \S4method{add_economics}{RSVProgramme}(object, econ_name, econ_raw, risks_raw, risks_vhr_raw)
 }
 \arguments{
-\item{econ_name}{a string for the name gven the economic framework given}
+\item{object}{An object of class \code{RSVProgramme}.}
 
-\item{econ_raw}{a dataframe with the economic parameters per age group.}
+\item{econ_name}{A character string representing the name of the economic data.}
 
-\item{risks_raw}{a dataframe with the risk of outcomes per age group.}
+\item{econ_raw}{A data frame containing the raw economic data.}
 
-\item{risks_vhr_raw}{a dataframe with the risk of outcomes per age group for very-high-risk infants}
+\item{risks_raw}{A data frame containing the raw risks data.}
+
+\item{risks_vhr_raw}{A data frame containing the raw very high risk (VHR) data.}
 }
 \value{
-An RSVProgramme object
+The updated \code{RSVProgramme} object with the added economic data.
 }
 \description{
-A setMethod for the \code{add_economics} function
+This method adds economic data to an RSVProgramme object.
+}
+\details{
+This method performs the following steps:
+\itemize{
+\item Checks if the output directory for the economic data exists, and creates it if it does not.
+\item Assigns the provided economic data and risk data to the corresponding slots in the \code{RSVProgramme} object.
+\item Extracts unique outcomes from the economic data and assigns them to the \code{outcomes_vec} slot.
+\item Stops execution if no outcomes are detected in the economic data.
+\item Generates samples of outcomes and assigns them to the \code{samples_outcomes} and \code{samples_outcomes_VHR} slots.
+}
+}
+\examples{
+\dontrun{
+  rsv_programme <- new("RSVProgramme")
+  rsv_programme <- add_economics(rsv_programme, "econ_data", econ_raw_df, risks_raw_df, risks_vhr_raw_df)
+}
 }

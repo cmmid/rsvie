@@ -2,22 +2,27 @@
 % Please edit documentation in R/programmeClass.R
 \name{add_programme,RSVProgramme-method}
 \alias{add_programme,RSVProgramme-method}
-\title{A setMethod for the \code{add_programme} function}
+\title{Add Programme to RSVProgramme Object}
 \usage{
 \S4method{add_programme}{RSVProgramme}(object, prog_name, cal, cal_vhr, immune_profile)
 }
 \arguments{
-\item{prog_name}{an integer taking the number of Monte Carlo samples to run over}
+\item{object}{An object of class \code{RSVProgramme}.}
 
-\item{cal}{a dataframe with the implementation calendar for the population}
+\item{prog_name}{A character string representing the name of the programme.}
 
-\item{cal_vhr}{dataframe with the implementation calendar for the very-high-risk population}
+\item{cal}{A calendar object used for the programme.}
 
-\item{immune_profile}{a list with information about the immune asumptions if the prophylatic in the programme}
+\item{cal_vhr}{A calendar object for very high-risk (VHR) groups.}
+
+\item{immune_profile}{A list containing the immune profile information.}
 }
 \value{
-An RSVProgramme object
+The updated \code{RSVProgramme} object with the new programme added.
 }
 \description{
-A setMethod for the \code{add_programme} function
+This method adds a programme to an RSVProgramme object, setting various attributes and creating necessary directories.
+}
+\details{
+This function sets the programme name, checks and creates necessary directories, initializes dose and sero matrices, calculates daily uptake, converts matrices to transmission calendars, and sets various attributes in the \code{RSVProgramme} object.
 }

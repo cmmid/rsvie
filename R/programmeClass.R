@@ -1,4 +1,31 @@
 # Define the S4 class for the RSV intervention programme
+#' @title RSVProgramme Class
+#' @description A class to represent an RSV (Respiratory Syncytial Virus) Programme.
+#' @slot econ_name A character string representing the economic name.
+#' @slot prog_name A character string representing the programme name.
+#' @slot model An object of class refClass representing the model.
+#' @slot uk_data A list containing UK data.
+#' @slot model_par A list of model parameters.
+#' @slot econ_par A list of economic parameters.
+#' @slot model_calendar A list representing the model calendar.
+#' @slot dose_calendar A list representing the dose calendar.
+#' @slot immune_profile A list representing the immune profile.
+#' @slot econ_df A data.frame containing economic data.
+#' @slot risks_df A data.frame containing risk data.
+#' @slot risks_vhr_df A data.frame containing very high risk data.
+#' @slot outcomes_vec A vector of outcomes.
+#' @slot post A data.frame containing posterior data.
+#' @slot seeds A vector of seeds.
+#' @slot S A numeric value.
+#' @slot raw_inci A list of raw incidence data.
+#' @slot wane_func_string A character string representing the waning function.
+#' @slot wane_func_string_vhr A character string representing the waning function for very high risk.
+#' @slot outcomes A list of outcomes.
+#' @slot samples_outcomes A list of sample outcomes.
+#' @slot samples_outcomes_VHR A list of sample outcomes for very high risk.
+#' @slot efficacies A vector of efficacies.
+#' @slot cov_mat A numeric matrix representing the covariance matrix.
+#' @slot full_output A logical value indicating whether to produce full output.
 #' @export
 setClass(
     "RSVProgramme",
@@ -123,18 +150,42 @@ make_rsv_programme <- function(S = 10) {
         )
 }
 
+
+#' @title Add Economics Data to an Object
+#' @description This generic function is used to add economics data to a specified object.
+#' @param object The object to which the economics data will be added.
+#' @param econ_name A character string representing the name of the economics data.
+#' @param econ_raw The raw economics data to be added.
+#' @param risks_raw The raw risks data associated with the economics data.
+#' @param risks_vhr_raw The raw very high risk data associated with the economics data.
+#' @return The object with the added economics data.
 #' @export
 setGeneric("add_economics", function(object, econ_name, econ_raw, risks_raw, risks_vhr_raw) {
   standardGeneric("add_economics")
 })
 
-#' @title A setMethod for the `add_economics` function
-#'
-#' @param econ_name a string for the name gven the economic framework given
-#' @param econ_raw a dataframe with the economic parameters per age group.
-#' @param risks_raw a dataframe with the risk of outcomes per age group.
-#' @param risks_vhr_raw a dataframe with the risk of outcomes per age group for very-high-risk infants
-#' @return An RSVProgramme object
+
+#' @title Add Economics Data to RSVProgramme Object
+#' @description This method adds economic data to an RSVProgramme object.
+#' @param object An object of class \code{RSVProgramme}.
+#' @param econ_name A character string representing the name of the economic data.
+#' @param econ_raw A data frame containing the raw economic data.
+#' @param risks_raw A data frame containing the raw risks data.
+#' @param risks_vhr_raw A data frame containing the raw very high risk (VHR) data.
+#' @return The updated \code{RSVProgramme} object with the added economic data.
+#' @details This method performs the following steps:
+#' \itemize{
+#'   \item Checks if the output directory for the economic data exists, and creates it if it does not.
+#'   \item Assigns the provided economic data and risk data to the corresponding slots in the \code{RSVProgramme} object.
+#'   \item Extracts unique outcomes from the economic data and assigns them to the \code{outcomes_vec} slot.
+#'   \item Stops execution if no outcomes are detected in the economic data.
+#'   \item Generates samples of outcomes and assigns them to the \code{samples_outcomes} and \code{samples_outcomes_VHR} slots.
+#' }
+#' @examples
+#' \dontrun{
+#'   rsv_programme <- new("RSVProgramme")
+#'   rsv_programme <- add_economics(rsv_programme, "econ_data", econ_raw_df, risks_raw_df, risks_vhr_raw_df)
+#' }
 #' @export
 setMethod("add_economics",  signature(object = "RSVProgramme"), 
     function(object, econ_name, econ_raw, risks_raw, risks_vhr_raw) {
@@ -157,19 +208,30 @@ setMethod("add_economics",  signature(object = "RSVProgramme"),
     }
 )
 
+
+#' @title Add Programme
+#' @description This function is a generic method for adding a programme to an object.
+#' @param object The object to which the programme will be added.
+#' @param prog_name The name of the programme to be added.
+#' @param cal The calendar associated with the programme.
+#' @param cal_vhr The calendar with very high resolution associated with the programme.
+#' @param immune_profile The immune profile associated with the programme.
+#' @return The object with the added programme.
 #' @export
 setGeneric("add_programme", function(object, prog_name, cal, cal_vhr, immune_profile) {
   standardGeneric("add_programme")
 })
 
 
-#' @title A setMethod for the `add_programme` function
-#'
-#' @param prog_name an integer taking the number of Monte Carlo samples to run over
-#' @param cal a dataframe with the implementation calendar for the population
-#' @param cal_vhr dataframe with the implementation calendar for the very-high-risk population
-#' @param immune_profile a list with information about the immune asumptions if the prophylatic in the programme
-#' @return An RSVProgramme object
+#' @title Add Programme to RSVProgramme Object
+#' @description This method adds a programme to an RSVProgramme object, setting various attributes and creating necessary directories.
+#' @param object An object of class \code{RSVProgramme}.
+#' @param prog_name A character string representing the name of the programme.
+#' @param cal A calendar object used for the programme.
+#' @param cal_vhr A calendar object for very high-risk (VHR) groups.
+#' @param immune_profile A list containing the immune profile information.
+#' @return The updated \code{RSVProgramme} object with the new programme added.
+#' @details This function sets the programme name, checks and creates necessary directories, initializes dose and sero matrices, calculates daily uptake, converts matrices to transmission calendars, and sets various attributes in the \code{RSVProgramme} object.
 #' @export
 setMethod("add_programme",  signature(object = "RSVProgramme"), 
     function(object, prog_name, cal, cal_vhr, immune_profile) {
@@ -217,6 +279,14 @@ setMethod("add_programme",  signature(object = "RSVProgramme"),
     }
 )
 
+
+#' @title Run Method
+#' @description Generic function to execute a specific operation.
+#' @param object The object on which the operation is performed.
+#' @param direct A logical value indicating whether to run the operation directly.
+#' @param filename An optional character string specifying the filename.
+#' @param yr_num An integer specifying the number of years, default is 2.
+#' @return The result of the operation.
 #' @export
 setGeneric("run", function(object, direct = FALSE, filename = NULL,  yr_num = 2) {
   standardGeneric("run")
@@ -224,8 +294,10 @@ setGeneric("run", function(object, direct = FALSE, filename = NULL,  yr_num = 2)
 
 #' @title A setMethod for the `run` function
 #'
-#' @param object RSVProgramme object
-#' @return An RSVProgramme object
+#' @param object The object on which the operation is performed.
+#' @param direct A logical value indicating whether to run the operation directly.
+#' @param filename An optional character string specifying the filename.
+#' @param yr_num An integer specifying the number of years, default is 2.#' @return An RSVProgramme object
 #' @import furrr
 #' @import future
 #' @export
@@ -233,7 +305,7 @@ setMethod("run",  signature(object = "RSVProgramme"),
 
     function(object, direct = FALSE, filename = NULL, yr_num = 2) {
         cat("Running: Iterating through model simulations\n")
-        future::plan(multisession, workers = 16)
+       # future::plan(multisession, workers = 1)
         raw_inci <-
             map(seq_len(object@S),
                 function(x) {
@@ -268,6 +340,13 @@ setMethod("run",  signature(object = "RSVProgramme"),
     }
 )
 
+
+#' @title Run State Generic Function
+#' @description This is a generic function for running a state.
+#' @param object An object on which the state is to be run.
+#' @param S_i An integer representing the state index. Default is 1.
+#' @param direct A logical value indicating whether to run the state directly. Default is FALSE.
+#' @return The result of the state run, depending on the method implementation.
 #' @export
 setGeneric("run_state", function(object, S_i = 1, direct = FALSE) {
   standardGeneric("run_state")
@@ -275,7 +354,9 @@ setGeneric("run_state", function(object, S_i = 1, direct = FALSE) {
 
 #' @title A setMethod for the `run_state` function
 #'
-#' @param object RSVProgramme object
+#' @param object An object on which the state is to be run.
+#' @param S_i An integer representing the state index. Default is 1.
+#' @param direct A logical value indicating whether to run the state directly. Default is FALSE.
 #' @return a matrix with all the values of the state variables in the dynamic transmission model
 #' @export
 setMethod("run_state",  signature(object = "RSVProgramme"),

@@ -2,15 +2,37 @@
 % Please edit documentation in R/add_economics_methods.R
 \name{output_samples}
 \alias{output_samples}
-\title{Convert mean and ci into samples from a fitted distribution}
+\title{Generate and output samples for economic and risk data}
 \usage{
 output_samples(econ_raw, risks_raw, file.name)
 }
 \arguments{
-\item{econ_raw}{a dataframe with the economic parameters per age group.}
+\item{econ_raw}{A data frame containing raw economic data with columns for age group, outcome, reference QALYs, mean QALYs, lower bound QALYs, and upper bound QALYs.}
 
-\item{risks_raw}{a dataframe with the risk of outcomes per age group.}
+\item{risks_raw}{A data frame containing raw risk data.}
+
+\item{file.name}{A string specifying the name of the output file.}
+}
+\value{
+A list containing sampled outcomes for risks, QALYs, and costs.
 }
 \description{
-Convert mean and ci into samples from a fitted distribution.
+This function processes raw economic and risk data, fits distributions to the data,
+generates samples, and outputs the results to a specified file.
+}
+\details{
+The function performs the following steps:
+\itemize{
+\item Fits triangular distributions to the risk, QALY, and cost data.
+\item Generates samples for each outcome using the fitted distributions.
+\item Outputs the sampled outcomes to the specified file.
+}
+}
+\examples{
+\dontrun{
+econ_raw <- read.csv("economic_data.csv")
+risks_raw <- read.csv("risk_data.csv")
+output_samples(econ_raw, risks_raw, "output_samples.csv")
+}
+
 }

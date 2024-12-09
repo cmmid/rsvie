@@ -4,14 +4,23 @@
 \alias{checkout_incidence}
 \title{function to conver the incidence matrix from a run to a data.frame}
 \usage{
-checkout_incidence(object, rerun = TRUE)
+checkout_incidence(object, rerun = FALSE)
 }
 \arguments{
-\item{object}{an RSVProgramme object}
+\item{object}{An object containing the raw incidence data.}
+
+\item{rerun}{A logical value indicating whether to rerun the \code{rsvie::run} function on the object. Default is TRUE.}
 }
 \value{
 none
+
+A data frame containing the processed incidence data with additional columns for time, age group, social group, and risk group.
 }
 \description{
-function to conver the incidence matrix from a run to a data.frame
+This function processes the incidence data from an object.
+}
+\examples{
+\dontrun{
+  result <- checkout_incidence(my_object)
+}
 }
