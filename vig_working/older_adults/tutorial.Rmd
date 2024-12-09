@@ -1,0 +1,299 @@
+---
+title: "Evaluating RSV maternal vaccination programmes"
+author: "David Hodgson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Evaluating RSV maternal vaccination programmes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r}
+
+devtools::load_all()
+# of library(rsvie)
+
+```
+
+# Simualtions for JCVI
+
+```{r}
+
+#install_rsvie()
+
+
+library(rsvie)
+library(devtools)
+library(tidyverse)
+library(posterior)
+source("R/run_scenarios.R")
+
+RSVempty <- make_rsv_programme(S = 100)
+
+econ_raw_ls <- read.csv(file = here::here("data", "econ", "econ_pars_ls.csv")) 
+econ_raw_ss <- read.csv(file = here::here("data", "econ", "econ_pars_ss.csv")) 
+
+risks_vhr_raw <- read.csv(file = here::here("data", "econ", "outcome_risks_vhr.csv"))
+
+model_cases_sample_mean_get <- load(file = here::here("data", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+
+outcomes_incidence_low_mort <- read.csv(file = here::here("data", "econ", "2425", "outcomes_incidence_low_mort.csv"))
+outcomes_incidence_mid_mort <- read.csv(file = here::here("data", "econ", "2425","outcomes_incidence_mid_mort.csv"))
+outcomes_incidence_high_mort <- read.csv(file = here::here("data", "econ", "2425", "outcomes_incidence_high_mort.csv"))
+
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw_low_mort <- covert_raw_to_risk(RSVempty, outcomes_incidence_low_mort, model_cases_sample_mean)
+risks_raw_mid_mort <- covert_raw_to_risk(RSVempty, outcomes_incidence_mid_mort, model_cases_sample_mean)
+risks_raw_high_mort <- covert_raw_to_risk(RSVempty, outcomes_incidence_high_mort, model_cases_sample_mean)
+
+
+RSVempty_lm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw_low_mort, risks_vhr_raw)
+RSVempty_mm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw_mid_mort, risks_vhr_raw)
+RSVempty_hm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw_high_mort, risks_vhr_raw)
+
+# Immunoogical profile
+# Risk groups
+immune_profiles <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
+
+
+# Change immune profile for pfizer with 2 season worth of data
+immune_profiles$lav$mass$a <- posterior[, 1]
+immune_profiles$lav$mass$b <- posterior[, 2]
+
+immune_profiles$lav$disease_eff[3, 2] <- 0.621
+immune_profiles$lav$disease_eff[3, 3] <- 0.621
+immune_profiles$lav$disease_eff[3, 4] <- 0.621
+immune_profiles$lav$disease_eff[3, 5] <- 0.889
+immune_profiles$lav$disease_eff[3, 6] <- 0.889
+immune_profiles$lav$disease_eff[3, 7] <- 0.889
+immune_profiles$lav$disease_eff[3, 8] <- 0.889
+
+
+cal_none <- read.csv(file = here::here("data", "calendars", "cal_none.csv")) 
+cal_vhr_s <- read.csv(file = here::here("data", "calendars",  "cal_vhr_s.csv")) 
+
+cal_lav_2425 <- read.csv(file = here::here("data", "calendars", "2425", "cal_oa_2425.csv")) 
+cal_lav_2425[25, 5] <- "oa_2425"
+
+
+## older adult programme programme
+RSV_lav_pal_lm <- add_programme(RSVempty_lm, prog_name = "lav_none_lm", cal_none, cal_vhr_s, immune_profiles$lav)
+RSV_lav_2425_lm <- add_programme(RSVempty_lm, prog_name = "lav_lm", cal_lav_2425, cal_vhr_s, immune_profiles$lav)
+
+
+RSV_lav_pal_mm <- add_programme(RSVempty_mm, prog_name = "lav_none_mm", cal_none, cal_vhr_s, immune_profiles$lav)
+RSV_lav_2425_mm <- add_programme(RSVempty_mm, prog_name = "lav_mm", cal_lav_2425, cal_vhr_s, immune_profiles$lav)
+
+RSV_lav_pal_hm <- add_programme(RSVempty_hm, prog_name = "lav_none_lh", cal_none, cal_vhr_s, immune_profiles$lav)
+RSV_lav_2425_hm <- add_programme(RSVempty_hm, prog_name = "lav_hm", cal_lav_2425, cal_vhr_s, immune_profiles$lav)
+
+RSV_lav_pal_lm <- rsvie::run(RSV_lav_pal_lm, yr_num = 0)
+RSV_lav_2425_lm <- rsvie::run(RSV_lav_2425_lm, yr_num = 0)
+
+RSV_lav_pal_mm <- rsvie::run(RSV_lav_pal_mm, yr_num = 0)
+RSV_lav_2425_mm <- rsvie::run(RSV_lav_2425_mm, yr_num = 0)
+
+RSV_lav_pal_hm <- rsvie::run(RSV_lav_pal_hm, yr_num = 0)
+RSV_lav_2425_hm <- rsvie::run(RSV_lav_2425_hm, yr_num = 0)
+
+RSV_lav_2425_hm@dose_calendar$LAV_LR[, 25]
+
+save(RSV_lav_pal_lm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_lm.RData"))
+save(RSV_lav_2425_lm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_lm.RData"))
+
+save(RSV_lav_pal_mm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_mm.RData"))
+save(RSV_lav_2425_mm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_mm.RData"))
+
+save(RSV_lav_pal_hm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_hm.RData"))
+save(RSV_lav_2425_hm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_hm.RData"))
+
+
+
+
+data.frame(
+    day = 1:365,
+    cov = RSV_lav_2425_lm@dose_calendar$LAV_LR[, 25] %>% cumsum
+) %>% 
+    ggplot() + 
+        geom_line(aes(x = day, y = cov)) + 
+        theme_bw() + labs(x = "Time of year", y = "Cumulative coverage of older adult 75+ programme") + 
+        scale_x_continuous(breaks = seq(1, 360, 30), labels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun")) 
+ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "uptake.png"))
+
+
+```
+
+```{r}
+
+get_averted_df <- function(base, interventions) {
+    recode_age <- c("1" = "<5 years", "2" = "<5 years", "3" = "<5 years", "4" = "<5 years", "5" = "<5 years",
+    "6" = "<5 years", "7" = "<5 years", "8" = "<5 years", "9" = "<5 years", "10" = "<5 years", "11" = "<5 years",
+    "12" = "<5 years", "13" = "<5 years", "14" = "<5 years", "15" = "<5 years", "16" = "<5 years", 
+    "17" = "5–65 years", "18" = "5–65 years", "19" = "5–65 years", "20" = "5–65 years", "21" = "5–65 years",
+    "22" = "5–65 years", "23" = "5–65 years", "24" = "65–74 years", "25" = "75+ years")
+    relabel_outcomes <- c("symptomatic" = "Symptomatic cases", "gp" = "GP consultations", 
+        "hosp" = "Hospital cases", "icu" = "ICU admissions", "a_e" = "A+E visits", "death" = "Deaths")
+    RSV_impact <- interventions %>%
+        left_join(base %>% rename(case_total_base = cases_total), by = c("s", "outcome", "age_group")) %>%
+        mutate(total_case_averted = case_total_base - cases_total) %>% mutate(prop_cases_averted = (case_total_base - cases_total) / case_total_base)  %>% mutate(age_group = recode(age_group, !!!recode_age)) %>%
+        mutate(age_group = factor(age_group, levels = unique(recode_age))) %>%
+        mutate(outcome = recode(outcome, !!!relabel_outcomes)) %>%
+        mutate(outcome = factor(outcome, levels = unique(relabel_outcomes)))
+    RSV_impact
+}
+
+summarise_outcomes <- function(x) {
+    x@outcomes$outcomes %>% group_by(s, outcome, age_group) %>% summarise(cases_total = sum(cases) )
+}
+
+RSV_lav_pal_lm_sum <- RSV_lav_pal_lm %>% summarise_outcomes
+RSV_lav_2425_lm_sum <- RSV_lav_2425_lm %>% summarise_outcomes
+RSV_lav_pal_mm_sum <- RSV_lav_pal_mm %>% summarise_outcomes
+RSV_lav_2425_mm_sum <- RSV_lav_2425_mm %>% summarise_outcomes
+RSV_lav_pal_hm_sum <- RSV_lav_pal_hm %>% summarise_outcomes
+RSV_lav_2425_hm_sum <- RSV_lav_2425_hm %>% summarise_outcomes
+
+RSV_2425_compare <- bind_rows(
+    get_averted_df(RSV_lav_pal_lm_sum, RSV_lav_2425_lm_sum) %>% mutate(intervention = "Older adult 2425 low mort"),
+    get_averted_df(RSV_lav_pal_mm_sum, RSV_lav_2425_mm_sum) %>% mutate(intervention = "Older adult 2425 mid mort"),
+    get_averted_df(RSV_lav_pal_hm_sum, RSV_lav_2425_hm_sum) %>% mutate(intervention = "Older adult 2425 high mort")
+) %>% group_by()
+
+RSV_2425_compare %>% filter(outcome != "A+E visits") %>%
+    ggplot() + 
+        stat_lineribbon(aes(x = age_group, y = prop_cases_averted, fill = intervention), alpha = 0.5) + 
+        facet_grid(rows = vars(outcome), cols = vars(intervention)) + theme_bw() + 
+#scale_fill_manual(values = c("#0d4fb2", "#91BAd6"))  + 
+        labs(x = "Age group", y = "Proportional reduction in cases per age group") + 
+        geom_hline(yintercept = 0, color = "gray30") +
+        guides(fill = "none") + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), text = element_text(size = 16)) + 
+        theme_bw()
+ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "prop_averted_cases.png"))
+
+RSV_2425_compare %>% filter(outcome != "A+E visits") %>%
+    ggplot() + 
+        stat_lineribbon(aes(x = age_group, y = total_case_averted, fill = intervention), alpha = 0.5) + 
+        facet_grid(rows = vars(outcome), cols = vars(intervention), scales = "free_y") + theme_bw() + 
+#scale_fill_manual(values = c("#0d4fb2", "#91BAd6"))  + 
+        labs(x = "Age group", y = "Total number of clinicial outcome averted") + 
+        geom_hline(yintercept = 0, color = "gray30") +
+        guides(fill = "none") + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), text = element_text(size = 16)) + 
+        theme_bw()
+ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "abs_averted_cases.png"))
+
+write.csv(RSV_2425_compare, here::here("outputs", "scenarios", "2425_lm", "conall", "averted_cases.csv"))
+
+```
+
+# find the correct efficacy 
+```{r}
+
+
+42.075 / 1943
+c(1943, 1641, 2270) * 0.0216
+
+8.125 / 55765
+c(557 , 421, 725) * 0.0145
+## Uptake of product over the season 
+## Coverage of product, find the propoation of adults aged 75-79 inthe 75+ population
+# https://www.statista.com/statistics/281174/uk-population-by-age/
+pop75_79 <- 713349 + 538909 + 512867 + 501297 + 455378
+prop75_elig <- pop75_79 / RSVempty@uk_data$populationAgeGroup[25]
+prop75_elig_cov <- prop75_elig * 0.8
+
+
+## Immune profile of product
+immune_profiles <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
+
+
+df_wane_lav <- 1:100 %>% map_df(~
+    data.frame(
+        days = 0:730,
+        prot = (immune_profiles$lav$mass$a[.x] * (1 - pgamma(0:730, 3, immune_profiles$lav$mass$b[.x])) )
+    )
+)
+
+require(ggdist)
+df_wane_lav %>% 
+    ggplot() + 
+        stat_lineribbon(aes(x = days, prot), .width = 0.95, fill = "gray", alpha = 0.6) + 
+        geom_segment(x = 0, xend = 365 / 12 * 6.7, y =  0.711, yend =  0.711, linewidth = 2, color = "red") +
+        theme_bw() +  ylim(0, 1) + 
+        labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
+            title = "Efficacy of olde adults, symp")
+
+```
+
+# Fitting procedure for multiseason waning of Pfizer
+
+```{r}
+
+library(BayesianTools)
+
+eff_high <- c(rep(0.889, 12), rep(0.778, 12))
+eff_low <- c(rep(0.651, 12), rep(0.557, 12))
+
+eff_df <- data.frame(
+    time = 1:24,
+    eff = eff_low
+)
+
+loglik <- function(param){
+    a <- param[1]
+    b <- param[2]
+    sigma <- param[3]
+    #cat(sigma, "\n")
+    ll <- 0
+    for (t in 1:24) {
+        val <- a * (1 - pgamma(t * 30, 3, b)) 
+       # cat(val, "\n")
+        ll <- ll + dnorm(eff_low[t], val, sigma, log = TRUE)
+    }
+    ll
+}
+
+
+bayesianSetup = createBayesianSetup(likelihood = loglik, lower = rep(0, 3), upper = rep(1, 3))
+settings = list(iterations = 10000, message = FALSE)
+out1 <- runMCMC(bayesianSetup = bayesianSetup, sampler = "Metropolis", settings = settings)
+
+save(out1, file = here::here("outputs", "scenarios", "2425_lm", "fitted_eff.RData"))
+
+posterior <- getSample(out1)
+
+traj_fits <- map_df(1:100, 
+    ~data.frame(
+        time = 1:730,
+        wane = posterior[.x, 1] * (1 - pgamma(1:730, 3, posterior[.x, 2]))
+    )
+)
+
+require(ggdist)
+p1 <- traj_fits %>% 
+    ggplot() + 
+    stat_lineribbon(aes(x = time, y = wane), .width = 0.95, fill = "gray", alpha = 0.6) + 
+    geom_point(data = eff_df, aes(x = 1:24 * 30, y = eff), color = "red") + 
+    ylim(0, 1) + theme_bw() +
+    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
+        title = "Fitting of waning for Pfizer (LTRI 2+), inf, symp, GP")
+
+p2 <- traj_fits %>% 
+    ggplot() + 
+    stat_lineribbon(aes(x = time, y = wane * 0.889 /0.621), .width = 0.95, fill = "gray", alpha = 0.6) + 
+    ylim(0, 1) + theme_bw() +
+    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
+        title = "Fitting of waning for Pfizer (LTRI 3+), hosp, A+E, ICU, death")
+
+require(patchwork)
+p1 / p2
+ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "waning.png"))
+
+
+```
+

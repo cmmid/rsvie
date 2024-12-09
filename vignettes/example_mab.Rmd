@@ -11,11 +11,13 @@ vignette: >
 
 # Markdown explaining how to use the RSV impact evaluation `rsvie` package
 
-## 1. Load package and functions
+
+## 1. Load package and functions
+
 This vignette explains how to use the `rsvie` package to evaluate the impact of different RSV intervention programmes. The package is designed to be flexible and allow the user to define different intervention programmes, with different immunological profiles, and evaluate their impact on RSV outcomes.
 
 
-```{r, load libraries, warning=FALSE}
+```{r, load libraries, warning=FALSE, results="hide"}
 
 # Load the package (or library(rsvie))
 devtools::load_all()
@@ -30,7 +32,7 @@ RSVempty %>% str
 
 Let's have a more detailed look at what's in these slots. I wouldn't recommend changing them, but future package iterations should allow for more flexibility. 
 
-```{r check, warning=FALSE}
+```{r check, warning=FALSE, results="hide"}
 
 RSVempty@prog_name # Name of the programme considered (currently empty)
 RSVempty@econ_name # Name of the economics considered (currently empty)
@@ -106,7 +108,7 @@ RSV_mab_s <- rsvie::run(RSV_mab_s)
 
 ## 6. Extract incidence for further exploration 
 
-```{r post-process, warning=FALSE}
+```{r post-process, warning=FALSE, results="hide"}
 
 # Look at full posterior outcomes
 
