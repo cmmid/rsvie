@@ -1,0 +1,141 @@
+
+```{r}
+
+
+source("R/run_scenarios.R")
+
+RSVempty <- make_rsv_programme(S = 100)
+
+econ_raw_ls_15 <- read.csv(file = here::here("data", "econ", "econ_pars_ls_15.csv")) 
+econ_raw_ss_15 <- read.csv(file = here::here("data", "econ", "econ_pars_ss_15.csv")) 
+econ_raw_ls_35 <- read.csv(file = here::here("data", "econ", "econ_pars_ls_35.csv")) 
+econ_raw_ss_35 <- read.csv(file = here::here("data", "econ", "econ_pars_ss_35.csv")) 
+
+risks_vhr_raw <- read.csv(file = here::here("data", "econ", "outcome_risks_vhr.csv"))
+
+outcomes_incidence <- read.csv(file = here::here("data", "econ", "outcomes_incidence_310823.csv"))
+
+model_cases_sample_mean_get <- load(file = here::here("data", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+model_cases_sample_mean[25, 2] <- model_cases_sample_mean[25, 2] * 0.6
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
+
+RSVempty_ls_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_15, risks_raw, risks_vhr_raw)
+RSVempty_ss_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_15, risks_raw, risks_vhr_raw)
+RSVempty_ls_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_35, risks_raw, risks_vhr_raw)
+RSVempty_ss_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_35, risks_raw, risks_vhr_raw)
+
+immune_profiles_unbound_gsk <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound_gsk.RDS"))
+immune_profiles_unbound_pfizer <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound_pfizer.RDS"))
+
+RSVempty_ss_15@econ_par$discount_rate <- 0.015
+RSVempty_ls_15@econ_par$discount_rate <- 0.015
+
+##############################
+ # GSK
+##############################
+
+# short stay
+run_scenarios_alt_310823(RSVempty_ss_35, immune_profiles_unbound_gsk, "oa_unbound_ss_not_dr35_gsk", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823(RSVempty_ss_15, immune_profiles_unbound_gsk, "oa_unbound_ss_not_dr15_gsk", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_alt_310823(RSVempty_ls_35, immune_profiles_unbound_gsk, "oa_unbound_ls_not_dr35_gsk", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823(RSVempty_ls_15, immune_profiles_unbound_gsk, "oa_unbound_ls_not_dr15_gsk", cov = c(0.7)); cat(2)
+
+
+# short stay
+run_scenarios_alt_310823_s(RSVempty_ss_35, immune_profiles_unbound_gsk, "oa_unbound_ss_not_dr35_gsk", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823_s(RSVempty_ss_15, immune_profiles_unbound_gsk, "oa_unbound_ss_not_dr15_gsk", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_alt_310823_s(RSVempty_ls_35, immune_profiles_unbound_gsk, "oa_unbound_ls_not_dr35_gsk", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823_s(RSVempty_ls_15, immune_profiles_unbound_gsk, "oa_unbound_ls_not_dr15_gsk", cov = c(0.7)); cat(2)
+
+##############################
+ # PFIZER
+##############################
+
+# short stay
+run_scenarios_alt_310823(RSVempty_ss_35, immune_profiles_unbound_pfizer, "oa_unbound_ss_not_dr35_pfizer", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823(RSVempty_ss_15, immune_profiles_unbound_pfizer, "oa_unbound_ss_not_dr15_pfizer", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_alt_310823(RSVempty_ls_35, immune_profiles_unbound_pfizer, "oa_unbound_ls_not_dr35_pfizer", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823(RSVempty_ls_15, immune_profiles_unbound_pfizer, "oa_unbound_ls_not_dr15_pfizer", cov = c(0.7)); cat(2)
+
+
+# short stay
+run_scenarios_alt_310823_s(RSVempty_ss_35, immune_profiles_unbound_pfizer, "oa_unbound_ss_not_dr35_pfizer", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823_s(RSVempty_ss_15, immune_profiles_unbound_pfizer, "oa_unbound_ss_not_dr15_pfizer", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_alt_310823_s(RSVempty_ls_35, immune_profiles_unbound_pfizer, "oa_unbound_ls_not_dr35_pfizer", cov = c(0.7)); cat(1)
+run_scenarios_alt_310823_s(RSVempty_ls_15, immune_profiles_unbound_pfizer, "oa_unbound_ls_not_dr15_pfizer", cov = c(0.7)); cat(2)
+
+
+
+# Nottingham estimates
+## 65–74 HCFR 12.5%, 75+ HCFR 18%
+## Incidence rates
+## Continuous uptake throughout year (1/365th get vaccinated every day)
+## 
+
+
+
+```
+
+
+
+
+```{r}
+
+
+source("R/run_scenarios.R")
+
+RSVempty <- make_rsv_programme(S = 100)
+
+econ_raw_ls_15 <- read.csv(file = here::here("data", "econ", "econ_pars_ls_15.csv")) 
+econ_raw_ss_15 <- read.csv(file = here::here("data", "econ", "econ_pars_ss_15.csv")) 
+econ_raw_ls_35 <- read.csv(file = here::here("data", "econ", "econ_pars_ls_35.csv")) 
+econ_raw_ss_35 <- read.csv(file = here::here("data", "econ", "econ_pars_ss_35.csv")) 
+
+risks_vhr_raw <- read.csv(file = here::here("data", "econ", "outcome_risks_vhr.csv"))
+
+outcomes_incidence <- read.csv(file = here::here("data", "econ", "outcomes_incidence.csv"))
+outcomes_incidence_high_mort <- read.csv(file = here::here("data", "econ", "outcomes_incidence_high_mort.csv"))
+
+model_cases_sample_mean_get <- load(file = here::here("data", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
+risks_raw_high_mort <- covert_raw_to_risk(RSVempty, outcomes_incidence_high_mort, model_cases_sample_mean)
+
+RSVempty_ls_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_15, risks_raw, risks_vhr_raw)
+RSVempty_ss_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_15, risks_raw, risks_vhr_raw)
+RSVempty_ls_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_35, risks_raw, risks_vhr_raw)
+RSVempty_ss_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_35, risks_raw, risks_vhr_raw)
+RSVempty_ls_high_mort_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_15, risks_raw_high_mort, risks_vhr_raw)
+RSVempty_ls_high_mort_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_35, risks_raw_high_mort, risks_vhr_raw)
+
+immune_profiles_bounded <- readRDS(here::here("data", "efficacies", "immune_profiles_bounded.RDS"))
+immune_profiles_unbound <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
+
+RSVempty_ss_15@econ_par$discount_rate <- 0.015
+RSVempty_ls_15@econ_par$discount_rate <- 0.015
+
+
+# short stay
+run_scenarios_alt_150823(RSVempty_ss_35, immune_profiles_unbound, "oa_unbound_ss_not_dr35", cov = c(0.7)); cat(1)
+run_scenarios_alt_150823(RSVempty_ss_15, immune_profiles_unbound, "oa_unbound_ss_not_dr15", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_alt_150823(RSVempty_ls_35, immune_profiles_unbound, "oa_unbound_ls_not_dr35", cov = c(0.7)); cat(1)
+run_scenarios_alt_150823(RSVempty_ls_15, immune_profiles_unbound, "oa_unbound_ls_not_dr15", cov = c(0.7)); cat(2)
+
+
+
+```

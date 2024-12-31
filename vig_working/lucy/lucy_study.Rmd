@@ -1,0 +1,120 @@
+
+
+
+## Run scenarios for Lucy
+
+```{r}
+
+source("R/run_scenarios.R")
+
+RSVempty <- make_rsv_programme(S = 999)
+
+econ_raw_ls <- read.csv(file = here::here("data", "econ", "econ_pars_ls.csv")) 
+econ_raw_ss <- read.csv(file = here::here("data", "econ", "econ_pars_ss.csv")) 
+
+risks_vhr_raw <- read.csv(file = here::here("data", "econ", "outcome_risks_vhr.csv"))
+
+outcomes_incidence <- read.csv(file = here::here("data", "econ", "outcomes_incidence.csv"))
+model_cases_sample_mean_get <- load(file = here::here("data", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
+
+RSVempty_ls <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls, risks_raw, risks_vhr_raw)
+RSVempty_ss <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw, risks_vhr_raw)
+
+immune_profiles_bounded <- readRDS(here::here("data", "efficacies", "immune_profiles_bounded.RDS"))
+immune_profiles_unbound <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
+
+immune_profiles_unbound$lav$full_output <- TRUE
+immune_profiles_unbound$mat$full_output <- TRUE
+immune_profiles_unbound$mabs$full_output <- TRUE
+immune_profiles_unbound$mat_vhr$full_output <- TRUE
+immune_profiles_unbound$mabs_vhr$full_output <- TRUE
+
+# mat and mab
+run_scenarios_op(RSVempty_ss, immune_profiles_unbound, "opt_unbound_ss_1000", cov = c(0.6, 0.9))
+run_scenarios_oa(RSVempty_ls, immune_profiles_unbound, "oa_unbound_ls_1000", cov = c(0.7))
+
+
+```
+
+# Evaluate intervention programmes 
+
+```{r}
+
+df_summary_inf <- c("RSV_mat_pal", "RSV_mat_s", "RSV_mat_yr", "RSV_mab_pal", "RSV_mab_s", "RSV_mab_s_cu", "RSV_mab_yr") %>% map_df(~
+    {
+        output_get <- load(here::here("outputs", "lucy", "opt_unbound_ss_1000", paste0(.x, ".RData")) )
+        output_get_prog <- get(output_get)
+        doses <- output_get_prog@outcomes$doses %>% apply(2, sum) %>% `/`(., 10)
+        doses %>% as.data.frame %>% mutate(type = c("lav", "pal", "mat"," mab"), programme =  .x)
+    }
+) 
+
+
+df_summary_oa <- c("RSV_lav_pal", "RSV_lav_65", "RSV_lav_75") %>% map_df(~
+    {
+        output_get <- load(here::here("outputs", "lucy", "oa_unbound_ls_1000", paste0(.x, ".RData")) )
+        output_get_prog <- get(output_get)
+        doses <- output_get_prog@outcomes$doses %>% apply(2, sum) %>% `/`(., 10)
+        doses %>% as.data.frame %>% mutate(type = c("lav", "pal", "mat"," mab"), programme =  .x)
+    }
+)
+
+
+output_get <- load(here::here("outputs", "lucy", "oa_unbound_ls_1000", paste0( "RSV_lav_65", ".RData")) )
+output_get_prog <- get(output_get)
+
+
+        doses <- output_get_prog@outcomes$doses %>% apply(2, sum) %>% `/`(., 10)
+        doses %>% as.data.frame %>% mutate(type = c("lav", "pal", "mat"," mab"), programme =  .x)
+
+df_doses <- bind_rows(
+    df_summary_inf,
+    df_summary_oa
+)
+df_doses
+
+```
+
+```{r}
+
+df_summary_inf <- c("RSV_mat_pal", "RSV_mat_s", "RSV_mat_yr", "RSV_mab_pal", "RSV_mab_s", "RSV_mab_s_cu", "RSV_mab_yr") %>% map_df(~
+    {
+        output_get <- load(here::here("outputs", "lucy", "opt_unbound_ss_1000", paste0(.x, ".RData")) )
+        output_get_prog <- get(output_get)
+        output_get_prog_sum <- output_get_prog@outcomes$outcomes %>% filter(outcome == "symptomatic") %>% mutate(yr_no = (week_no - 1) %/% 52 ) %>% 
+            summarise(cases = sum(cases), .by = c(yr_no, age_group, outcome, s)) %>% ungroup %>% mutate(yr_no = yr_no + 1) %>% filter(yr_no <= 10) %>%
+            mutate(programme = .x)
+        output_get_prog_sum
+    }
+) 
+
+df_summary_oa <- c("RSV_lav_pal", "RSV_lav_65", "RSV_lav_75") %>% map_df(~
+    {
+        output_get <- load(here::here("outputs", "lucy", "oa_unbound_ls_1000", paste0(.x, ".RData")) )
+        output_get_prog <- get(output_get)
+        output_get_prog_sum <- output_get_prog@outcomes$outcomes %>% filter(outcome == "symptomatic") %>% mutate(yr_no = (week_no - 1) %/% 52 ) %>% 
+            summarise(cases = sum(cases), .by = c(yr_no, age_group, outcome, s)) %>% ungroup %>% mutate(yr_no = yr_no + 1) %>% filter(yr_no <= 10) %>%
+            mutate(programme = .x)
+        output_get_prog_sum
+    }
+)
+
+
+df_incidence_<- bind_rows(
+    df_summary_inf,
+    df_summary_oa
+)
+
+df_summary_incidence_<- bind_rows(
+    df_summary_inf %>% summarise(mean(cases), .by = c("yr_no", "age_group", "programme")),
+    df_summary_oa %>% summarise(mean(cases), .by = c("yr_no", "age_group", "programme"))
+)
+
+saveRDS(df_incidence_lucy, file = here::here("outputs", "lucy", "full_lucy.RData") )
+saveRDS(df_summary_incidence_lucy, file = here::here("outputs", "lucy", "summary_lucy.RData") )
+
+```

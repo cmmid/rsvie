@@ -1,48 +1,49 @@
 ---
-title: "Evaluating RSV maternal vaccination programmes"
+title: "Evaluating RSV older adult vaccination programmes for UKHSA in 2024/25"
 author: "David Hodgson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Evaluating RSV maternal vaccination programmes}
+  %\VignetteIndexEntry{Evaluating RSV older adult vaccination programmes for UKHSA in 2024/25}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+# Markdown explaining how to use the RSV impact evaluation `rsvie` package
+
+
+## 1. Load package and functions
+
+This vignette explains how to use the `rsvie` package to evaluate the impact of different RSV intervention programmes. The package is designed to be flexible and allow the user to define different intervention programmes, with different immunological profiles, and evaluate their impact on RSV outcomes.
 
 ```{r}
 
 devtools::load_all()
-# of library(rsvie)
+# or library(rsvie)
+library(devtools)
+library(tidyverse)
+library(here)
 
 ```
 
-# Simualtions for JCVI
+# Simualtions for DHSC
 
 ```{r}
 
-#install_rsvie()
 
+RSVempty <- make_rsv_programme(S = 1)
 
-library(rsvie)
-library(devtools)
-library(tidyverse)
-library(posterior)
-source("R/run_scenarios.R")
+econ_raw_ss <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ss.csv")) 
+econ_raw_ls <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ls.csv")) 
 
-RSVempty <- make_rsv_programme(S = 100)
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ",  "outcome_risks_vhr.csv"))
 
-econ_raw_ls <- read.csv(file = here::here("data", "econ", "econ_pars_ls.csv")) 
-econ_raw_ss <- read.csv(file = here::here("data", "econ", "econ_pars_ss.csv")) 
-
-risks_vhr_raw <- read.csv(file = here::here("data", "econ", "outcome_risks_vhr.csv"))
-
-model_cases_sample_mean_get <- load(file = here::here("data", "model_cases_sample_mean.RData"))
+model_cases_sample_mean_get <- load(file = system.file(package = "rsvie", "extdata", "model_cases_sample_mean.RData"))
 model_cases_sample_mean <- get(model_cases_sample_mean_get)
 
-outcomes_incidence_low_mort <- read.csv(file = here::here("data", "econ", "2425", "outcomes_incidence_low_mort.csv"))
-outcomes_incidence_mid_mort <- read.csv(file = here::here("data", "econ", "2425","outcomes_incidence_mid_mort.csv"))
-outcomes_incidence_high_mort <- read.csv(file = here::here("data", "econ", "2425", "outcomes_incidence_high_mort.csv"))
+outcomes_incidence_low_mort <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "2425", "outcomes_incidence_low_mort.csv")) # high mortality estimates 
+outcomes_incidence_mid_mort <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "2425", "outcomes_incidence_mid_mort.csv")) # high mortality estimates 
+outcomes_incidence_high_mort <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "2425", "outcomes_incidence_high_mort.csv")) # high mortality estimates 
 
 
 # This function then converts the incidence of the outcome to the risk per infection
@@ -55,10 +56,89 @@ RSVempty_lm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks
 RSVempty_mm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw_mid_mort, risks_vhr_raw)
 RSVempty_hm <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss, risks_raw_high_mort, risks_vhr_raw)
 
+```
+
+```{r}
 # Immunoogical profile
 # Risk groups
-immune_profiles <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
+# Fitting procedure for multiseason waning of Pfizer
 
+
+eff_high <- c(rep(0.889, 12), rep(0.778, 12))
+eff_low <- c(rep(0.651, 12), rep(0.557, 12))
+
+eff_df <- data.frame(
+    time = 1:24,
+    eff = eff_low
+)
+
+get_posterior_of_multiseason_fit <- function() {
+
+    library(BayesianTools)
+
+
+
+    loglik <- function(param){
+        a <- param[1]
+        b <- param[2]
+        sigma <- param[3]
+        #cat(sigma, "\n")
+        ll <- 0
+        for (t in 1:24) {
+            val <- a * (1 - pgamma(t * 30, 3, b)) 
+        # cat(val, "\n")
+            ll <- ll + dnorm(eff_low[t], val, sigma, log = TRUE)
+        }
+        ll
+    }
+
+
+    bayesianSetup = createBayesianSetup(likelihood = loglik, lower = rep(0, 3), upper = rep(1, 3))
+    settings = list(iterations = 10000, message = FALSE)
+    out1 <- runMCMC(bayesianSetup = bayesianSetup, sampler = "Metropolis", settings = settings)
+
+    save(out1, file = here::here("outputs", "oa_2425", "fitted_eff.RData"))
+
+    posterior <- getSample(out1)
+
+}
+
+posterior <- get_posterior_of_multiseason_fit()
+
+traj_fits <- map_df(1:100, 
+    ~data.frame(
+        time = 1:730,
+        wane = posterior[.x, 1] * (1 - pgamma(1:730, 3, posterior[.x, 2]))
+    )
+)
+
+
+require(ggdist)
+p1 <- traj_fits %>% 
+    ggplot() + 
+    stat_lineribbon(aes(x = time, y = wane), .width = 0.95, fill = "gray", alpha = 0.6) + 
+    geom_point(data = eff_df, aes(x = 1:24 * 30, y = eff), color = "red") + 
+    ylim(0, 1) + theme_bw() +
+    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
+        title = "Fitting of waning for Pfizer (LTRI 2+), inf, symp, GP")
+
+p2 <- traj_fits %>% 
+    ggplot() + 
+    stat_lineribbon(aes(x = time, y = wane * 0.889 /0.621), .width = 0.95, fill = "gray", alpha = 0.6) + 
+    ylim(0, 1) + theme_bw() +
+    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
+        title = "Fitting of waning for Pfizer (LTRI 3+), hosp, A+E, ICU, death")
+
+require(patchwork)
+p1 / p2
+ggsave(here::here("outputs", "oa_2425", "figs", "waning.png"))
+
+
+```
+
+```{r}
+
+immune_profiles <- readRDS(file = system.file(package = "rsvie", "extdata", "efficacies", "immune_profiles_unbound.RDS"))
 
 # Change immune profile for pfizer with 2 season worth of data
 immune_profiles$lav$mass$a <- posterior[, 1]
@@ -72,11 +152,10 @@ immune_profiles$lav$disease_eff[3, 6] <- 0.889
 immune_profiles$lav$disease_eff[3, 7] <- 0.889
 immune_profiles$lav$disease_eff[3, 8] <- 0.889
 
-
-cal_none <- read.csv(file = here::here("data", "calendars", "cal_none.csv")) 
-cal_vhr_s <- read.csv(file = here::here("data", "calendars",  "cal_vhr_s.csv")) 
-
-cal_lav_2425 <- read.csv(file = here::here("data", "calendars", "2425", "cal_oa_2425.csv")) 
+# To evaluate a seasonal monoclonal given at birth, we load an Excel spreadsheet such as:
+cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
+cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
+cal_lav_2425 <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "2425", "cal_oa_2425.csv")) 
 cal_lav_2425[25, 5] <- "oa_2425"
 
 
@@ -102,14 +181,14 @@ RSV_lav_2425_hm <- rsvie::run(RSV_lav_2425_hm, yr_num = 0)
 
 RSV_lav_2425_hm@dose_calendar$LAV_LR[, 25]
 
-save(RSV_lav_pal_lm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_lm.RData"))
-save(RSV_lav_2425_lm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_lm.RData"))
+save(RSV_lav_pal_lm, file = here::here("outputs", "oa_2425", "RSV_oa_pal_lm.RData"))
+save(RSV_lav_2425_lm, file = here::here("outputs", "oa_2425", "RSV_oa_2425_lm.RData"))
 
-save(RSV_lav_pal_mm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_mm.RData"))
-save(RSV_lav_2425_mm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_mm.RData"))
+save(RSV_lav_pal_mm, file = here::here("outputs", "oa_2425", "RSV_oa_pal_mm.RData"))
+save(RSV_lav_2425_mm, file = here::here("outputs", "oa_2425", "RSV_oa_2425_mm.RData"))
 
-save(RSV_lav_pal_hm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_pal_hm.RData"))
-save(RSV_lav_2425_hm, file = here::here("outputs", "scenarios", "2425_lm", "RSV_oa_2425_hm.RData"))
+save(RSV_lav_pal_hm, file = here::here("outputs", "oa_2425", "RSV_oa_pal_hm.RData"))
+save(RSV_lav_2425_hm, file = here::here("outputs", "oa_2425", "RSV_oa_2425_hm.RData"))
 
 
 
@@ -122,33 +201,14 @@ data.frame(
         geom_line(aes(x = day, y = cov)) + 
         theme_bw() + labs(x = "Time of year", y = "Cumulative coverage of older adult 75+ programme") + 
         scale_x_continuous(breaks = seq(1, 360, 30), labels = c("Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun")) 
-ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "uptake.png"))
+ggsave(here::here("outputs", "oa_2425", "figs", "uptake.png"))
 
 
 ```
 
 ```{r}
 
-get_averted_df <- function(base, interventions) {
-    recode_age <- c("1" = "<5 years", "2" = "<5 years", "3" = "<5 years", "4" = "<5 years", "5" = "<5 years",
-    "6" = "<5 years", "7" = "<5 years", "8" = "<5 years", "9" = "<5 years", "10" = "<5 years", "11" = "<5 years",
-    "12" = "<5 years", "13" = "<5 years", "14" = "<5 years", "15" = "<5 years", "16" = "<5 years", 
-    "17" = "5–65 years", "18" = "5–65 years", "19" = "5–65 years", "20" = "5–65 years", "21" = "5–65 years",
-    "22" = "5–65 years", "23" = "5–65 years", "24" = "65–74 years", "25" = "75+ years")
-    relabel_outcomes <- c("symptomatic" = "Symptomatic cases", "gp" = "GP consultations", 
-        "hosp" = "Hospital cases", "icu" = "ICU admissions", "a_e" = "A+E visits", "death" = "Deaths")
-    RSV_impact <- interventions %>%
-        left_join(base %>% rename(case_total_base = cases_total), by = c("s", "outcome", "age_group")) %>%
-        mutate(total_case_averted = case_total_base - cases_total) %>% mutate(prop_cases_averted = (case_total_base - cases_total) / case_total_base)  %>% mutate(age_group = recode(age_group, !!!recode_age)) %>%
-        mutate(age_group = factor(age_group, levels = unique(recode_age))) %>%
-        mutate(outcome = recode(outcome, !!!relabel_outcomes)) %>%
-        mutate(outcome = factor(outcome, levels = unique(relabel_outcomes)))
-    RSV_impact
-}
 
-summarise_outcomes <- function(x) {
-    x@outcomes$outcomes %>% group_by(s, outcome, age_group) %>% summarise(cases_total = sum(cases) )
-}
 
 RSV_lav_pal_lm_sum <- RSV_lav_pal_lm %>% summarise_outcomes
 RSV_lav_2425_lm_sum <- RSV_lav_2425_lm %>% summarise_outcomes
@@ -209,8 +269,6 @@ prop75_elig_cov <- prop75_elig * 0.8
 
 
 ## Immune profile of product
-immune_profiles <- readRDS(here::here("data", "efficacies", "immune_profiles_unbound.RDS"))
-
 
 df_wane_lav <- 1:100 %>% map_df(~
     data.frame(
@@ -230,70 +288,5 @@ df_wane_lav %>%
 
 ```
 
-# Fitting procedure for multiseason waning of Pfizer
 
-```{r}
-
-library(BayesianTools)
-
-eff_high <- c(rep(0.889, 12), rep(0.778, 12))
-eff_low <- c(rep(0.651, 12), rep(0.557, 12))
-
-eff_df <- data.frame(
-    time = 1:24,
-    eff = eff_low
-)
-
-loglik <- function(param){
-    a <- param[1]
-    b <- param[2]
-    sigma <- param[3]
-    #cat(sigma, "\n")
-    ll <- 0
-    for (t in 1:24) {
-        val <- a * (1 - pgamma(t * 30, 3, b)) 
-       # cat(val, "\n")
-        ll <- ll + dnorm(eff_low[t], val, sigma, log = TRUE)
-    }
-    ll
-}
-
-
-bayesianSetup = createBayesianSetup(likelihood = loglik, lower = rep(0, 3), upper = rep(1, 3))
-settings = list(iterations = 10000, message = FALSE)
-out1 <- runMCMC(bayesianSetup = bayesianSetup, sampler = "Metropolis", settings = settings)
-
-save(out1, file = here::here("outputs", "scenarios", "2425_lm", "fitted_eff.RData"))
-
-posterior <- getSample(out1)
-
-traj_fits <- map_df(1:100, 
-    ~data.frame(
-        time = 1:730,
-        wane = posterior[.x, 1] * (1 - pgamma(1:730, 3, posterior[.x, 2]))
-    )
-)
-
-require(ggdist)
-p1 <- traj_fits %>% 
-    ggplot() + 
-    stat_lineribbon(aes(x = time, y = wane), .width = 0.95, fill = "gray", alpha = 0.6) + 
-    geom_point(data = eff_df, aes(x = 1:24 * 30, y = eff), color = "red") + 
-    ylim(0, 1) + theme_bw() +
-    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
-        title = "Fitting of waning for Pfizer (LTRI 2+), inf, symp, GP")
-
-p2 <- traj_fits %>% 
-    ggplot() + 
-    stat_lineribbon(aes(x = time, y = wane * 0.889 /0.621), .width = 0.95, fill = "gray", alpha = 0.6) + 
-    ylim(0, 1) + theme_bw() +
-    labs(x = "Days post vaccination", y = "Proportion of individuals protected", 
-        title = "Fitting of waning for Pfizer (LTRI 3+), hosp, A+E, ICU, death")
-
-require(patchwork)
-p1 / p2
-ggsave(here::here("outputs", "scenarios", "2425_lm", "conall", "waning.png"))
-
-
-```
 

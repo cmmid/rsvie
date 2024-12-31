@@ -160,3 +160,30 @@ get_averted_df <- function(base, interventions) {
         mutate(outcome = factor(outcome, levels = unique(relabel_outcomes)))
     RSV_impact
 }
+
+
+
+run_scenarios_oa <- function(RSVempty, immune_profile, file, cov) {
+    if (!dir.exists(here::here("outputs", file))) {
+        # create the folder if it doesn't exist
+        dir.create(here::here("outputs", file))
+    }
+
+    cal_none <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_none.csv")) 
+    cal_vhr_s <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_vhr_s.csv")) 
+    cal_lav_65 <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_lav_oa_65.csv")) 
+    cal_lav_75 <- read.csv(file = system.file(package = "rsvie", "extdata", "calendars", "cal_lav_oa_75.csv")) 
+
+    ## Maternal programme
+    RSV_lav_pal <- add_programme(RSVempty, prog_name = "mat_pal", cal_none, cal_vhr_s, immune_profile$lav)
+    RSV_lav_65 <- add_programme(RSVempty, prog_name = "mat_65", cal_lav_65, cal_vhr_s, immune_profile$lav)
+    RSV_lav_75 <- add_programme(RSVempty, prog_name = "mat_75", cal_lav_75, cal_vhr_s, immune_profile$lav)
+
+    RSV_lav_pal <- rsvie::run(RSV_lav_pal)
+    RSV_lav_65 <- rsvie::run(RSV_lav_65)
+    RSV_lav_75 <- rsvie::run(RSV_lav_75)
+
+    save(RSV_lav_pal, file = here::here("outputs", "oa_JCVI", file, "RSV_lav_pal.RData"))
+    save(RSV_lav_65, file = here::here("outputs", "oa_JCVI", file, "RSV_lav_65.RData"))
+    save(RSV_lav_75, file = here::here("outputs", "oa_JCVI", file, "RSV_lav_75.RData"))
+}

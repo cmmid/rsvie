@@ -1,0 +1,80 @@
+---
+title: "Evaluating RSV older adult vaccination programmes for JCVI in 2023"
+author: "David Hodgson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Evaluating RSV older adult vaccination programmes for JCVI in 2023}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Markdown explaining how to use the RSV impact evaluation `rsvie` package
+
+
+## 1. Load package and functions
+
+This vignette explains how to use the `rsvie` package to evaluate the impact of different RSV intervention programmes. The package is designed to be flexible and allow the user to define different intervention programmes, with different immunological profiles, and evaluate their impact on RSV outcomes.
+
+```{r}
+
+devtools::load_all()
+# or library(rsvie)
+library(devtools)
+library(tidyverse)
+library(here)
+
+```
+
+### Run scenarios for JCVI 2023 
+
+```{r}
+
+RSVempty <- make_rsv_programme(S = 1) # for some reason the simulations are way slower than before, will try and fix this soon. (S in the number of samples, usually 100-1000, but will just use 1 for now.)
+
+econ_raw_ls_15 <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ls_15.csv")) # get long-stay costs with 1.5% discount rate
+econ_raw_ss_15 <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ss_15.csv"))  # get short-stay costs with 1.5% discount rate
+econ_raw_ls_35 <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ls_35.csv"))  # get long-stay costs with 3.5% discount rate
+econ_raw_ss_35 <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "econ_pars_ss_35.csv"))  # get short-stay costs with 3.5% discount rate
+
+risks_vhr_raw <- read.csv(file = system.file(package = "rsvie", "extdata", "econ",  "outcome_risks_vhr.csv")) 
+outcomes_incidence <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcomes_incidence.csv"))
+outcomes_incidence_high_mort <- read.csv(file = system.file(package = "rsvie", "extdata", "econ", "outcomes_incidence_high_mort.csv")) # high mortality estimates 
+
+model_cases_sample_mean_get <- load(file = system.file(package = "rsvie", "extdata", "model_cases_sample_mean.RData"))
+model_cases_sample_mean <- get(model_cases_sample_mean_get)
+
+# This function then converts the incidence of the outcome to the risk per infection
+risks_raw <- covert_raw_to_risk(RSVempty, outcomes_incidence, model_cases_sample_mean)
+risks_raw_high_mort <- covert_raw_to_risk(RSVempty, outcomes_incidence_high_mort, model_cases_sample_mean)
+
+# initialiate all the different programmes 
+RSVempty_ls_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_15, risks_raw, risks_vhr_raw)
+RSVempty_ss_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_15, risks_raw, risks_vhr_raw)
+RSVempty_ls_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_35, risks_raw, risks_vhr_raw)
+RSVempty_ss_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ss_35, risks_raw, risks_vhr_raw)
+RSVempty_ls_high_mort_15 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_15, risks_raw_high_mort, risks_vhr_raw)
+RSVempty_ls_high_mort_35 <- add_economics(RSVempty, econ_name = "E_W2023", econ_raw_ls_35, risks_raw_high_mort, risks_vhr_raw)
+RSVempty_ss_15@econ_par$discount_rate <- 0.015
+RSVempty_ls_15@econ_par$discount_rate <- 0.015
+RSVempty_ls_high_mort_15@econ_par$discount_rate <- 0.015
+
+# Get the immune profile
+immune_profile <- readRDS(file = system.file(package = "rsvie", "extdata", "efficacies", "immune_profiles_unbound.RDS"))
+
+
+# Older adult vaccination programmes
+# short stay
+run_scenarios_oa(RSVempty_ss_35, immune_profile, "oa_unbound_ss_dr35", cov = c(0.7)); cat(1)
+run_scenarios_oa(RSVempty_ss_15, immune_profile, "oa_unbound_ss_dr15", cov = c(0.7)); cat(2)
+
+# long-stay stay
+run_scenarios_oa(RSVempty_ls_35, immune_profile, "oa_unbound_ls_dr35", cov = c(0.7)); cat(1)
+run_scenarios_oa(RSVempty_ls_15, immune_profile, "oa_unbound_ls_dr15", cov = c(0.7)); cat(2)
+
+# high moartality with long stay
+run_scenarios_oa(RSVempty_ls_high_mort_35, immune_profile, "oa_unbound_ls_dr35_high", cov = c(0.7))
+run_scenarios_oa(RSVempty_ls_high_mort_15, immune_profile, "oa_unbound_ls_dr15_high", cov = c(0.7))
+
+
+```
